@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行指南 - QKH的旅行幻想时刻</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Resources -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e40af;
+            --text-color: #f8fafc;
+            --background-color: #0f172a;
+            --accent-color: #1e293b;
+            --visited-color: #4ade80;
+            --to-visit-color: #fbbf24;
+            --hover-color: #60a5fa;
+            --card-bg: #1e293b;
+            --section-spacing: 6rem;
+            --container-width: 1200px;
+            --header-bg: rgba(15, 23, 42, 0.8);
+            --footer-bg: var(--background-color);
+            --transition: 0.3s ease;
+            --card-shadow-color: rgba(0, 0, 0, 0.2);
+            --card-background: rgba(30, 41, 59, 0.8);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --nav-background: rgba(30, 41, 59, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color var(--transition), 
+                       color var(--transition),
+                       border-color var(--transition),
+                       box-shadow var(--transition);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            background-image: linear-gradient(to bottom, var(--background-color), var(--accent-color));
+            min-height: 100vh;
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 2rem;
+            width: 100%;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-links a.active::after {
+            width: 100%;
+            background-color: var(--primary-color);
+        }
+
+        .hero {
+            padding: 12rem 0 8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 650px;
+            margin: 0 auto 3rem;
+        }
+
+        .travel-resources {
+            padding: var(--section-spacing) 0;
+            position: relative;
+        }
+
+        .tips-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tip-card {
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 30px var(--card-shadow-color);
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .tip-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px var(--card-shadow-color);
+        }
+
+        .tip-icon {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .tip-card h3 {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .tip-card p {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        .travel-list {
+            list-style: none;
+            text-align: left;
+            margin-top: 1rem;
+            padding: 0 1rem;
+        }
+
+        .travel-list li {
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .travel-list li::before {
+            content: '•';
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .season-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .season-tab {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--card-background);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .season-tab:hover {
+            background-color: var(--primary-color);
+        }
+
+        .season-tab.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .season-panel {
+            display: none;
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .season-panel.active {
+            display: block;
+        }
+
+        .season-destinations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .season-destination {
+            background-color: rgba(30, 41, 59, 0.5);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .season-destination h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .season-destination ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .season-destination li {
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .season-destination li::before {
+            content: '→';
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+        }
+
+        footer {
+            background-color: var(--footer-bg);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .tips-container {
+                grid-template-columns: 1fr;
+            }
+
+            .season-tabs {
+                flex-wrap: wrap;
+            }
+
+            .season-tab {
+                width: calc(50% - 0.5rem);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 8rem 0 4rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .season-tab {
+                width: 100%;
+            }
+        }
+
+        #chartdiv {
+            width: 100%;
+            height: 500px;
+            margin: 2rem 0;
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 30px var(--card-shadow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-map-section {
+            margin: 2rem 0;
+        }
+
+        .world-map-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .leaflet-container {
+            background-color: var(--card-background) !important;
+        }
+
+        .map-home-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .map-home-button:hover {
+            background: #f4f4f4;
+        }
+
+        .country {
+            fill: #3b82f6;
+            fill-opacity: 0.2;
+            stroke: #ffffff;
+            stroke-width: 1;
+            stroke-opacity: 0.3;
+        }
+
+        .country.highlighted {
+            fill: #166534;
+            fill-opacity: 0.6;
+            stroke: #ffffff;
+            stroke-width: 1;
+            stroke-opacity: 0.5;
+            cursor: pointer;
+        }
+
+        .country.highlighted:hover {
+            fill: #15803d;
+            fill-opacity: 0.8;
+        }
+
+        /* 修改国家攻略模块的样式 */
+        .country-guide {
+            margin: 2rem 0;
+            padding: 2rem;
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 30px var(--card-shadow-color);
+        }
+
+        .country-guide h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .country-guide-content {
+            color: var(--text-color);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .country-guide-placeholder {
+            text-align: center;
+            padding: 3rem 0;
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--primary-color);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 1rem;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .content-transition {
+            transition: opacity 0.3s ease;
+        }
+
+        .content-transition.loading {
+            opacity: 0.5;
+        }
+
+        .resource-content {
+            padding: 1rem 0;
+            min-height: 120px;
+        }
+
+        .resource-content p {
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .resource-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .resource-content li {
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .resource-content li::before {
+            content: '•';
+            color: var(--primary-color);
+            position: absolute;
+            left: 0.5rem;
+        }
+
+        .resource-content.loading {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="../pw/index.html" class="logo">
+                <span class="logo-icon">🌍</span>
+                <span>QKH的旅行幻想</span>
+            </a>
+            <div class="nav-links">
+                <a href="../pw/index.html">主页</a>
+                <a href="../pw/country_details.html">国家详情</a>
+                <a href="travel_guide.html" class="active">旅行指南</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Chart code -->
+            <script>
+            am5.ready(function() {
+                // Create root element
+                // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+                var root = am5.Root.new("chartdiv");
+
+                // Set themes
+                // https://www.amcharts.com/docs/v5/concepts/themes/
+                root.setThemes([
+                    am5themes_Animated.new(root)
+                ]);
+
+                // Create the map chart
+                // https://www.amcharts.com/docs/v5/charts/map-chart/
+                var chart = root.container.children.push(am5map.MapChart.new(root, {
+                    panX: "translateX",
+                    panY: "translateY",
+                    projection: am5map.geoMercator()
+                }));
+
+                // Create main polygon series for countries
+                // https://www.amcharts.com/docs/v5/charts/map-chart/map-polygon-series/
+                var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
+                    geoJSON: am5geodata_worldLow,
+                    exclude: ["AQ"]
+                }));
+
+                // 设置国家的默认外观
+polygonSeries.mapPolygons.template.setAll({
+    tooltipText: "{name}",
+    toggleKey: "active",
+    interactive: true,
+    fill: am5.color(0x3b82f6),
+    fillOpacity: 0.3
+});
+
+const highlightedCountriesByName = [
+  "New Zealand",
+  "United Kingdom",
+  "France",
+  "Germany",
+  "Egypt",
+  "Brazil",
+  "Canada",
+  "Mexico",
+  "North Korea",
+  "Italy"
+];
+
+polygonSeries.events.on("datavalidated", function() {
+  polygonSeries.mapPolygons.each(function(polygon) {
+    const countryName = polygon.dataItem.dataContext.name;
+
+    if (highlightedCountriesByName.includes(countryName)) {
+      const green = am5.color(0x166534);
+      polygon.setAll({
+        fill: green,
+        fillOpacity: 0.6
+      });
+      polygon.states.lookup("default").setAll({
+        fill: green
+      });
+    }
+  });
+});
+
+
+
+                // 设置悬停状态
+                polygonSeries.mapPolygons.template.states.create("hover", {
+                    fill: root.interfaceColors.get("primaryButtonHover"),
+                    fillOpacity: 0.8
+                });
+
+                // 设置激活状态
+                polygonSeries.mapPolygons.template.states.create("active", {
+                    fill: root.interfaceColors.get("primaryButtonHover"),
+                    fillOpacity: 0.8
+                });
+
+                var previousPolygon;
+
+                polygonSeries.mapPolygons.template.on("active", function (active, target) {
+                    if (previousPolygon && previousPolygon != target) {
+                        previousPolygon.set("active", false);
+                    }
+                    if (target.get("active")) {
+                        polygonSeries.zoomToDataItem(target.dataItem);
+                    }
+                    else {
+                        chart.goHome();
+                    }
+                    previousPolygon = target;
+                });
+
+                // Add zoom control
+                // https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Zoom_control
+                var zoomControl = chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
+                zoomControl.homeButton.set("visible", true);
+
+                // Set clicking on "water" to zoom out
+                chart.chartContainer.get("background").events.on("click", function () {
+                    chart.goHome();
+                })
+
+                // Make stuff animate on load
+                chart.appear(1000, 100);
+            }); // end am5.ready()
+            </script>
+
+            <!-- HTML -->
+            <div id="chartdiv"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 QKH的旅行幻想. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+       
+
+        
+
+        // 更新国家信息的函数
+        function updateCountryInfo(countryId, countryName) {
+            const countryNameElement = document.getElementById('countryName');
+            const guideContent = document.getElementById('countryGuideContent');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            countryNameElement.textContent = `${countryName}旅游攻略`;
+            guideContent.classList.add('loading');
+            loadingSpinner.style.display = 'inline-block';
+            
+            guideContent.innerHTML = '';
+
+            try {
+                updateResources(countryId);
+                
+                getCountryGuide(countryName).then(guideText => {
+                    guideContent.innerHTML = guideText.replace(/\n/g, '<br>');
+                    guideContent.classList.remove('loading');
+                    loadingSpinner.style.display = 'none';
+                    document.getElementById('countryGuide').scrollIntoView({ behavior: 'smooth' });
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                guideContent.innerHTML = '<p class="error-message">抱歉，获取攻略信息失败，请稍后再试。</p>';
+                guideContent.classList.remove('loading');
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // DeepSeek API配置
+        const DEEPSEEK_API_KEY = 'sk-6369cb77bae0471483ec29b34f8712c4';
+        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+        // 获取国家攻略
+        async function getCountryGuide(countryName) {
+            const prompt = `请为${countryName}生成一份详细的旅游攻略，包括以下方面：
+1. 最佳旅行时间
+2. 必去景点推荐（至少3个）
+3. 特色美食推荐
+4. 交通建议
+5. 注意事项和文化禁忌
+
+请用中文回答，并保持内容精炼但信息丰富。`;
+
+            try {
+                const response = await fetch(DEEPSEEK_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{
+                            role: "user",
+                            content: prompt
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API请求失败');
+                }
+
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error('获取攻略失败:', error);
+                return '抱歉，获取攻略信息失败，请稍后再试。';
+            }
+        }
+
+        // 国家资源信息映射
+        const countryResources = {
+            "NZ": {
+                apps: [
+                    "NZ Maps Offline - 离线地图应用",
+                    "MetService NZ - 天气预报",
+                    "AT Mobile - 奥克兰公共交通"
+                ],
+                finance: [
+                    "主要使用新西兰元(NZD)",
+                    "建议使用EFTPOS卡支付",
+                    "大多数商家支持信用卡"
+                ],
+                language: [
+                    "官方语言：英语和毛利语",
+                    "常用毛利语：Kia ora (你好)",
+                    "英语是主要交流语言"
+                ]
+            },
+            "GB": {
+                apps: [
+                    "Citymapper - 伦敦交通出行",
+                    "National Rail - 火车时刻表",
+                    "OpenTable UK - 餐厅预订"
+                ],
+                finance: [
+                    "使用英镑(GBP)",
+                    "contactless支付普及",
+                    "建议携带少量现金"
+                ],
+                language: [
+                    "官方语言：英语",
+                    "当地英式英语表达",
+                    "基础礼貌用语必备"
+                ]
+            },
+            "FR": {
+                apps: [
+                    "RATP - 巴黎地铁导航",
+                    "La Fourchette - 餐厅预订",
+                    "France24 - 法国新闻"
+                ],
+                finance: [
+                    "使用欧元(EUR)",
+                    "信用卡广泛接受",
+                    "小额消费需现金"
+                ],
+                language: [
+                    "官方语言：法语",
+                    "Bonjour (你好)",
+                    "S'il vous plaît (请)"
+                ]
+            },
+            "DE": {
+                apps: [
+                    "DB Navigator - 德铁时刻表",
+                    "Too Good To Go - 美食折扣",
+                    "Deutsche Bahn - 火车票务"
+                ],
+                finance: [
+                    "使用欧元(EUR)",
+                    "现金使用较普遍",
+                    "大型商场可刷卡"
+                ],
+                language: [
+                    "官方语言：德语",
+                    "Guten Tag (你好)",
+                    "Danke (谢谢)"
+                ]
+            },
+            "EG": {
+                apps: [
+                    "Uber Egypt - 打车软件",
+                    "Egyptian Arabic Dict - 阿语词典",
+                    "XE Currency - 货币转换"
+                ],
+                finance: [
+                    "使用埃及镑(EGP)",
+                    "建议携带美元",
+                    "大型酒店可刷卡"
+                ],
+                language: [
+                    "官方语言：阿拉伯语",
+                    "Salam (你好)",
+                    "Shukran (谢谢)"
+                ]
+            },
+            "BR": {
+                apps: [
+                    "99 - 巴西打车软件",
+                    "iFood - 美食外卖",
+                    "Moovit - 公交导航"
+                ],
+                finance: [
+                    "使用巴西雷亚尔(BRL)",
+                    "信用卡普遍使用",
+                    "建议备用现金"
+                ],
+                language: [
+                    "官方语言：葡萄牙语",
+                    "Olá (你好)",
+                    "Obrigado/a (谢谢)"
+                ]
+            },
+            "CA": {
+                apps: [
+                    "Transit - 公共交通",
+                    "The Weather Network",
+                    "Tim Hortons - 咖啡订餐"
+                ],
+                finance: [
+                    "使用加拿大元(CAD)",
+                    "信用卡广泛使用",
+                    "小费文化普遍"
+                ],
+                language: [
+                    "官方语言：英语和法语",
+                    "常见法语：Bonjour",
+                    "魁北克地区主要讲法语"
+                ]
+            },
+            "MX": {
+                apps: [
+                    "Uber Mexico - 打车软件",
+                    "Rappi - 外卖购物",
+                    "MetroCDMX - 地铁导航"
+                ],
+                finance: [
+                    "使用墨西哥比索(MXN)",
+                    "现金使用较普遍",
+                    "旅游区可用美元"
+                ],
+                language: [
+                    "官方语言：西班牙语",
+                    "Hola (你好)",
+                    "Gracias (谢谢)"
+                ]
+            },
+            "KP": {
+                apps: [
+                    "离线地图必备",
+                    "货币转换器",
+                    "翻译软件"
+                ],
+                finance: [
+                    "使用朝鲜元(KPW)",
+                    "建议携带欧元或人民币",
+                    "现金为主要支付方式"
+                ],
+                language: [
+                    "官方语言：朝鲜语",
+                    "안녕하세요 (你好)",
+                    "감사합니다 (谢谢)"
+                ]
+            },
+            "IT": {
+                apps: [
+                    "Trenitalia - 火车票务",
+                    "TheFork - 餐厅预订",
+                    "Moovit - 公交导航"
+                ],
+                finance: [
+                    "使用欧元(EUR)",
+                    "信用卡普遍接受",
+                    "小商店需要现金"
+                ],
+                language: [
+                    "官方语言：意大利语",
+                    "Ciao (你好)",
+                    "Grazie (谢谢)"
+                ]
+            }
+        };
+
+        // 更新资源内容的函数
+        function updateResources(countryId) {
+            console.log('Updating resources for country:', countryId); // 添加调试日志
+            const resources = countryResources[countryId];
+            if (!resources) {
+                console.log('No resources found for country:', countryId); // 添加调试日志
+                return;
+            }
+
+            const appsContent = document.getElementById('appsContent');
+            const financeContent = document.getElementById('financeContent');
+            const languageContent = document.getElementById('languageContent');
+
+            // 更新应用推荐
+            appsContent.innerHTML = `
+                <ul>
+                    ${resources.apps.map(app => `<li>${app}</li>`).join('')}
+                </ul>
+            `;
+
+            // 更新资金管理
+            financeContent.innerHTML = `
+                <ul>
+                    ${resources.finance.map(tip => `<li>${tip}</li>`).join('')}
+                </ul>
+            `;
+
+            // 更新语言指南
+            languageContent.innerHTML = `
+                <ul>
+                    ${resources.language.map(tip => `<li>${tip}</li>`).join('')}
+                </ul>
+            `;
+
+            console.log('Resources updated successfully'); // 添加调试日志
+        }
+    </script>
+</body>
+</html> 
