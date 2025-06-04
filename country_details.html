@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QKH的旅行幻想</title>
-    <!-- 引入 amCharts 资源 -->
-    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
-    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
-    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
-    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
-    <script src="https://cdn.amcharts.com/lib/5/themes/Dark.js"></script>
+    <title>国家详情 - QKH的旅行幻想</title>
+    <!-- 引入 Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <!-- 引入 Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
     <!-- 引入Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
-    <!-- 引入主题切换按钮修复样式 -->
-    <link rel="stylesheet" href="theme-fix.css">
     <style>
         :root {
             --primary-color: #3b82f6;
@@ -32,23 +32,17 @@
             --header-bg: rgba(15, 23, 42, 0.8);
             --footer-bg: var(--background-color);
             --transition: 0.3s ease;
-            --globe-background: #0c1b33;
-            --globe-ocean-color: #1e3a8a;
-            --globe-countries-color: #334155;
-            --globe-grid-color: #ffffff;
-            --globe-shadow-color: rgba(59, 130, 246, 0.18);
             --card-shadow-color: rgba(0, 0, 0, 0.2);
             --card-background: rgba(30, 41, 59, 0.8);
             --card-border: rgba(255, 255, 255, 0.05);
             --nav-background: rgba(30, 41, 59, 0.7);
+            --globe-background: #0c1b33;
         }
 
-        /* 主题切换过渡 */
         * {
-            transition: background-color var(--transition), 
-                       color var(--transition),
-                       border-color var(--transition),
-                       box-shadow var(--transition);
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
@@ -63,178 +57,649 @@
             letter-spacing: 0.01em;
         }
 
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Noto Serif SC', serif;
-            font-weight: 600;
-            line-height: 1.3;
-            margin-bottom: 1rem;
-        }
-
         .container {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            padding: 0 2rem;
-            width: 100%;
+            display: flex;
+            min-height: 100vh;
         }
 
-        header {
-            background-color: var(--header-bg);
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 280px;
+            background-color: var(--nav-background);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem 1rem;
+            border-right: 1px solid var(--card-border);
             position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            height: 100vh;
+            overflow-y: auto;
         }
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.2rem 0;
-            transition: all 0.3s ease;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: transform 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        .logo-icon {
-            font-size: 1.8rem;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2.5rem;
-        }
-
-        .nav-links a {
-            color: var(--text-color);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            position: relative;
-            padding: 0.5rem 0;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--primary-color);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .nav-links a:hover {
-            color: var(--hover-color);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* 当前页面激活状态 */
-        .nav-links a.active {
-            color: var(--primary-color);
-        }
-        
-        .nav-links a.active::after {
-            width: 100%;
-            background-color: var(--primary-color);
-        }
-
-        .hero {
-            padding: 12rem 0 8rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
-            z-index: -1;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
+        .sidebar-header {
+            padding: 0 1rem 1.5rem;
+            border-bottom: 1px solid var(--card-border);
             margin-bottom: 1.5rem;
+        }
+
+        .sidebar-header h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .country-list {
+            list-style: none;
+        }
+
+        .country-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .country-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
             color: var(--text-color);
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .country-link:hover {
+            background-color: var(--card-background);
+            color: var(--primary-color);
+        }
+
+        .country-link.active {
+            background-color: var(--card-background);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .country-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+        }
+
+        .status-visited {
+            background-color: var(--visited-color);
+        }
+
+        .status-to-visit {
+            background-color: var(--to-visit-color);
+        }
+
+        /* 主内容区域样式 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+            min-height: calc(100vh - 200px); /* 减去页面其他元素的高度 */
+        }
+
+        .country-header {
+            text-align: left;
+            padding: 1rem;
+            background: transparent;
+            border-radius: 1rem;
+        }
+
+        .country-header h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
             background: linear-gradient(to right, #4ade80, #3b82f6);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            display: inline-block;
-            letter-spacing: 0.02em;
         }
 
-        .hero p {
-            font-size: 1.25rem;
+        .country-status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .country-map {
+            position: sticky; /* 使地图固定在视图中 */
+            top: 2rem;
+            padding: 0;
+            border-radius: 1rem;
+            height: calc(100vh - 200px); /* 与 top-section 保持一致 */
+            background: transparent;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .country-map h2 {
+            display: none;
+        }
+
+        .country-info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: 100%;
+        }
+
+        .country-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .info-card {
+            background-color: var(--card-background);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px var(--card-shadow-color);
+            border: 1px solid var(--card-border);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .info-card p {
             color: #94a3b8;
-            max-width: 650px;
-            margin: 0 auto 3rem;
             line-height: 1.8;
         }
 
-        .map-section {
-            padding: 2rem 0 var(--section-spacing);
-            position: relative;
-            overflow: hidden;
+        .country-description {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px var(--card-shadow-color);
+            border: 1px solid var(--card-border);
         }
 
-        .map-section::before {
-            content: '';
-            position: absolute;
-            top: -100px;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background: linear-gradient(to bottom, transparent, var(--background-color));
+        .country-description h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
         }
 
-        /* 粒子背景 */
-        .particles-container {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .country-description p {
+            color: #94a3b8;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--card-background);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--card-border);
+            font-weight: 500;
+            margin-right: 1rem;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .guide-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--primary-color);
+            font-weight: 500;
+        }
+
+        .guide-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 修改地图容器样式 */
+        #countryMap {
             width: 100%;
             height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
+            border-radius: 1rem;
+            background: var(--background-color);
         }
 
-        .particle {
-            position: absolute;
-            background-color: var(--primary-color);
+        /* Leaflet 地图自定义样式 */
+        .leaflet-container {
+            background: #1e293b;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        /* 自定义标记样式 */
+        .custom-marker {
+            background: rgba(59, 130, 246, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.8);
             border-radius: 50%;
-            opacity: 0.3;
-            animation: particleFloat linear infinite;
+            text-align: center;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .custom-marker:hover {
+            background: rgba(59, 130, 246, 1);
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+
+        .custom-marker.capital {
+            background: rgba(244, 63, 94, 0.9);
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .custom-marker.capital:hover {
+            background: rgba(244, 63, 94, 1);
+        }
+
+        /* 美化弹出窗口样式 */
+        .leaflet-popup-content-wrapper {
+            background: rgba(30, 41, 59, 0.95);
+            color: #ffffff;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .leaflet-popup-content {
+            margin: 1rem 1.5rem;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .popup-content {
+            min-width: 200px;
+        }
+
+        .popup-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .popup-description {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .popup-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .popup-button:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        /* 自定义缩放控件样式 */
+        .leaflet-control-zoom {
+            border: none !important;
+            margin: 1rem !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: rgba(30, 41, 59, 0.95) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+            width: 36px !important;
+            height: 36px !important;
+            line-height: 36px !important;
+            font-size: 1.2rem !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: rgba(59, 130, 246, 0.3) !important;
+            color: #60a5fa !important;
+        }
+
+        .leaflet-control-zoom-in {
+            border-top-left-radius: 0.5rem !important;
+            border-top-right-radius: 0.5rem !important;
+        }
+
+        .leaflet-control-zoom-out {
+            border-bottom-left-radius: 0.5rem !important;
+            border-bottom-right-radius: 0.5rem !important;
+        }
+
+        /* 自定义归位按钮 */
+        .reset-view-button {
+            background: rgba(30, 41, 59, 0.95) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            font-family: 'Noto Sans SC', sans-serif !important;
+            font-size: 0.9rem !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            backdrop-filter: blur(10px);
+            margin-bottom: 0.5rem;
+        }
+
+        .reset-view-button:hover {
+            background: rgba(59, 130, 246, 0.3) !important;
+            color: #60a5fa !important;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 1200px) {
+            .top-section {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .country-map {
+                position: relative;
+                top: 0;
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--card-border);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .country-header h1 {
+                font-size: 2rem;
+            }
+
+            .country-map {
+                height: 400px;
+            }
+
+            .leaflet-control-zoom {
+                margin: 0.5rem !important;
+            }
+
+            .leaflet-control-zoom a {
+                width: 32px !important;
+                height: 32px !important;
+                line-height: 32px !important;
+            }
+
+            .country-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* POI 标记样式 */
+        .poi-marker {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px !important;
+            height: 24px !important;
+            transition: all 0.3s ease;
+        }
+
+        .poi-marker:hover {
+            transform: scale(1.1);
+            background: #3b82f6;
+            color: white;
+        }
+
+        /* 城市信息面板样式 */
+        .city-info-panel {
+            background: rgba(30, 41, 59, 0.95);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 1rem;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .city-info-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .city-info-header h3 {
+            color: #60a5fa;
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .capital-badge {
+            background: rgba(244, 63, 94, 0.2);
+            color: #f43f5e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .city-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            color: #60a5fa;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .city-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .city-actions button {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .city-actions button:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        /* POI 弹出窗口样式 */
+        .poi-popup {
+            min-width: 200px;
+        }
+
+        .poi-title {
+            font-weight: 500;
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+
+        .poi-type {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .poi-description {
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* POI 按钮样式 */
+        .poi-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .poi-button:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .poi-button.active {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #ffffff;
+        }
+
+        .button-icon {
+            font-size: 1.1rem;
+        }
+
+        /* POI 标记样式 */
+        .poi-marker.attractions {
+            background: rgba(244, 63, 94, 0.9);
+            border-color: rgba(244, 63, 94, 0.4);
+        }
+
+        .poi-marker.restaurants {
+            background: rgba(34, 197, 94, 0.9);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+
+        .poi-marker.transport {
+            background: rgba(59, 130, 246, 0.9);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        /* POI 链接样式 */
+        .poi-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .poi-link:hover {
+            background: rgba(59, 130, 246, 0.2);
         }
 
         /* 添加浮动地球仪样式 */
@@ -245,17 +710,16 @@
             width: 150px;
             height: 150px;
             z-index: 1000;
-            background: rgba(15, 23, 42, 0.8);
+            background: var(--globe-background);
             border-radius: 50%;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
             overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .floating-globe:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
         }
 
@@ -264,1469 +728,1383 @@
             height: 100%;
         }
 
-        @media (max-width: 768px) {
-            .floating-globe {
-                width: 100px;
-                height: 100px;
-                bottom: 10px;
-                right: 10px;
-            }
-        }
-
-        @keyframes particleFloat {
-            0% { transform: translateY(0) translateX(0); opacity: 0; }
-            10% { opacity: 0.7; }
-            90% { opacity: 0.7; }
-            100% { transform: translateY(-200px) translateX(100px); opacity: 0; }
-        }
-
-        /* 添加地球光晕效果 */
-        .map-glow {
-            position: absolute;
-            top: -5%;
-            left: -5%;
-            width: 110%;
-            height: 110%;
-            border-radius: 50%;
-            background: radial-gradient(circle at center, var(--globe-background) 30%, transparent 70%);
-            z-index: -1;
-            opacity: 0.4;
-            filter: blur(20px);
-            animation: glowPulse 8s ease-in-out infinite;
-        }
-
-        @keyframes glowPulse {
-            0% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.05); }
-            100% { opacity: 0.2; transform: scale(1); }
-        }
-
-        /* 地球容器动画效果 */
-        @keyframes float {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(1deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
-        }
-
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 60px var(--globe-shadow-color); }
-            50% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 100px var(--globe-shadow-color); }
-            100% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 60px var(--globe-shadow-color); }
-        }
-
-        .map-container {
-            width: 800px;
-            height: 800px;
-            margin: 2rem auto;
-            position: relative;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 
-                        0 0 100px var(--globe-shadow-color);
-            transition: transform 0.5s ease, box-shadow 0.5s ease;
-            animation: float 6s ease-in-out infinite, pulse-glow 4s ease-in-out infinite;
-        }
-
-        /* 地球轨道效果 */
-        .map-container::before,
-        .map-container::after {
-            content: '';
-            position: absolute;
-            width: 110%;
-            height: 110%;
-            top: -5%;
-            left: -5%;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: -1;
-            opacity: 0;
-            animation: orbit 20s linear infinite;
-            pointer-events: none;
-        }
-
-        .map-container::after {
-            width: 120%;
-            height: 120%;
-            top: -10%;
-            left: -10%;
-            border: 2px dotted rgba(255, 255, 255, 0.15);
-            animation-duration: 30s;
-            animation-direction: reverse;
-        }
-
-        @keyframes orbit {
-            0% { transform: rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: rotate(360deg); opacity: 0; }
-        }
-
-        /* 更新悬停效果，增加额外动效 */
-        .map-container:hover {
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
-                        0 0 120px var(--globe-shadow-color);
-            animation-play-state: paused; /* 悬停时暂停动画 */
-        }
-
-        /* 动态背景开关 */
-        :root.light-mode .map-container::before,
-        :root.light-mode .map-container::after {
-            border-color: rgba(59, 130, 246, 0.1);
-        }
-
-        #chartdiv {
-            width: 100%;
-            height: 100%;
-            background-color: var(--globe-background);
-        }
-
-        .map-legend {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin: 3rem auto 0;
-            background-color: var(--nav-background);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 1.2rem 3rem;
-            border-radius: 3rem;
-            display: inline-flex;
-            box-shadow: 0 8px 20px var(--card-shadow-color);
-            border: 1px solid var(--card-border);
-            transition: transform 0.3s ease;
-        }
-
-        .map-legend:hover {
-            transform: translateY(-5px);
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .legend-color {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .visited-color {
-            background-color: var(--visited-color);
-        }
-
-        .to-visit-color {
-            background-color: var(--to-visit-color);
-        }
-
-        .features {
-            padding: var(--section-spacing) 0;
-            background-color: var(--accent-color);
-            position: relative;
-        }
-
-        .features::before {
-            content: '';
-            position: absolute;
-            top: -80px;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background: linear-gradient(to bottom, transparent, var(--accent-color));
-        }
-
-        .section-title-container {
-            text-align: center;
-            margin-bottom: 4rem;
-            position: relative;
-        }
-
-        .section-title-container::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(to right, #4ade80, #3b82f6);
-            margin: 1rem auto 0;
-            border-radius: 2px;
-        }
-
-        .features h2 {
-            font-size: 2.8rem;
-            background: linear-gradient(to right, #4ade80, #3b82f6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2.5rem;
-            margin-top: 2rem;
-        }
-
-        .feature-card {
+        /* 人口热力图样式 */
+        .population-heatmap-section {
+            margin-top: 3rem;
+            padding: 2rem;
             background-color: var(--card-background);
-            padding: 2.5rem;
-            border-radius: 1.2rem;
-            box-shadow: 0 8px 30px var(--card-shadow-color);
-            transition: all 0.3s ease;
+            border-radius: 1rem;
             border: 1px solid var(--card-border);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
+            box-shadow: 0 10px 30px var(--card-shadow-color);
+            width: calc(50% - 1rem);
+            min-width: 300px;
         }
 
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.03), rgba(59, 130, 246, 0.03));
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px var(--card-shadow-color);
-            border-color: var(--card-border);
-        }
-
-        .feature-card:hover::before {
-            opacity: 1;
-        }
-
-        .feature-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 1.2rem;
-            font-size: 1.8rem;
-            position: relative;
-            padding-bottom: 0.75rem;
-        }
-
-        .feature-card h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: linear-gradient(to right, #4ade80, #3b82f6);
-            border-radius: 2px;
-        }
-
-        .feature-card p {
-            color: #cbd5e1;
-            line-height: 1.8;
-            font-size: 1.05rem;
-        }
-
-        footer {
-            background-color: var(--footer-bg);
-            color: #94a3b8;
-            padding: 4rem 0;
+        .population-heatmap-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .footer-content {
+        .population-heatmap-section .data-source {
+            margin-top: 1rem;
+            text-align: right;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        #populationHeatmap {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-color: var(--nav-background);
+            min-height: 300px;
+            max-height: 400px;
+        }
+
+        /* 热力图图例样式 */
+        .am5-heat-legend {
+            background-color: var(--card-background);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .am5-heat-legend text {
+            fill: var(--text-color);
+        }
+
+        /* 旅行建议模块样式 */
+        .travel-advice-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px var(--card-shadow-color);
+            width: calc(50% - 1rem);
+            min-width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
         }
 
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2.5rem;
-            margin: 1rem 0;
+        .travel-advice-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            text-align: center;
         }
 
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.3s ease;
-            font-size: 1rem;
-            position: relative;
-        }
-
-        .footer-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background-color: var(--primary-color);
-            transition: width 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary-color);
-        }
-
-        .footer-links a:hover::after {
-            width: 100%;
-        }
-
-        /* 主题切换按钮 */
-        .theme-toggle {
-            display: none !important;
-        }
-
-        @media (max-width: 1024px) {
-            :root {
-                --section-spacing: 5rem;
-            }
-            
-            .hero h1 {
-                font-size: 3.5rem;
-            }
-            
-            .map-container {
-                width: 700px;
-                height: 700px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            :root {
-                --section-spacing: 4rem;
-            }
-            
-            .hero {
-                padding: 10rem 0 5rem;
-            }
-            
-            .hero h1 {
-                font-size: 2.8rem;
-            }
-            
-            .map-container {
-                width: 90vw;
-                height: 90vw;
-                max-width: 600px;
-                max-height: 600px;
-            }
-            
-            .map-legend {
-                flex-direction: column;
-                align-items: center;
-                gap: 0.75rem;
-                padding: 1rem 2rem;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-links {
-                gap: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .map-container {
-                margin: 1rem auto;
-            }
-            
-            .container {
-                padding: 0 1.5rem;
-            }
-            
-            .feature-card {
-                padding: 1.8rem;
-            }
-        }
-
-        /* 删除地图控制提示样式 */
-        .map-controls {
-            display: none;
-        }
-
-        /* 地图部分容器样式 */
-        .map-section-content {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        /* 交互提示栏样式 */
-        .tips-panel {
-            position: relative;
-            width: 300px;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 1rem;
+        .travel-advice-content {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
             padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            opacity: 0;
-            animation: fadeIn 0.8s ease forwards;
-            animation-delay: 1s;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-color);
         }
 
-        .tips-panel h3 {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin-bottom: 1.2rem;
+        .travel-advice-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .action-button {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .tips-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .tip-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
             background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 0.5rem;
+            cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 1rem;
         }
 
-        .tip-item:hover {
-            background: rgba(59, 130, 246, 0.15);
-            transform: translateX(5px);
+        .action-button:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
         }
 
-        .tip-icon {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            flex-shrink: 0;
+        .button-icon {
+            font-size: 1.2rem;
         }
 
-        .tip-content {
-            font-size: 0.95rem;
-            color: #e2e8f0;
-            line-height: 1.5;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @media (max-width: 1200px) {
-            .map-section-content {
-                flex-direction: column;
-            }
-
-            .tips-panel {
-                width: 100%;
-                max-width: 600px;
-                animation: fadeInUp 0.8s ease forwards;
-                animation-delay: 1s;
-            }
-
-            .tips-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1rem;
-            }
-
-            @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        }
-
-        @media (max-width: 768px) {
-            .map-section-content {
-                padding: 0 1rem;
-            }
-
-            .tips-list {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* 模态对话框样式 */
-        .modal-overlay {
+        /* 全屏模式样式 */
+        .fullscreen-overlay {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 2000;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            padding: 2rem;
+            overflow-y: auto;
         }
 
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .modal-container {
+        .fullscreen-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-background);
+            padding: 2rem;
+            border-radius: 1rem;
             position: relative;
-            width: 90%;
-            max-width: 600px;
-            margin: auto;
+        }
+
+        .close-fullscreen {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .close-fullscreen:hover {
+            transform: scale(1.1);
+        }
+
+        /* 移除打印相关样式 */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #travelAdvice, #travelAdvice * {
+                visibility: visible !important;
+            }
+            #travelAdvice {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+                margin: 0;
+                background: white !important;
+                color: black !important;
+            }
+            #travelAdvice h3 {
+                margin-top: 20px;
+                color: black !important;
+            }
+            #travelAdvice p, #travelAdvice ul {
+                color: black !important;
+            }
+        }
+
+        /* 博主经验分享模块样式 */
+        .blog-experience {
+            margin-top: 3rem;
+            padding: 2rem;
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px var(--card-shadow-color);
+            width: 100%;
+        }
+
+        .blog-experience h2 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .blog-posts {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .blog-post {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .post-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .post-date {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .post-content {
+            color: var(--text-color);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .post-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .post-tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .action-button:hover {
+            color: var(--primary-color);
+        }
+
+        .action-count {
+            font-weight: 500;
+        }
+
+        .post-comments {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--card-border);
+            display: none;
+        }
+
+        .post-comments.active {
+            display: block;
+        }
+
+        .comment {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-author {
+            color: #60a5fa;
+            font-weight: 500;
+        }
+
+        .comment-date {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .comment-content {
+            color: var(--text-color);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .new-comment {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .new-comment input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .new-comment button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .new-comment button:hover {
+            background: var(--secondary-color);
+        }
+
+        /* 在 style 标签内添加图片相关样式 */
+        .post-images {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            padding: 0.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--card-background);
+        }
+
+        .post-images::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .post-images::-webkit-scrollbar-track {
+            background: var(--card-background);
+            border-radius: 4px;
+        }
+
+        .post-images::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .post-image {
+            flex: 0 0 auto;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .post-image img {
+            height: 200px;
+            width: 300px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .post-image:hover {
+            transform: scale(1.05);
+        }
+
+        /* 图片预览模态框样式 */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+        }
+
+        /* 添加帖子详情模态框样式 */
+        .post-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .post-modal.active {
+            display: block;
+        }
+
+        .post-modal-content {
+            position: relative;
+            max-width: 800px;
+            margin: 40px auto;
             background: var(--card-background);
             border-radius: 1rem;
             padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--card-border);
-            transform: translateY(20px);
-            opacity: 0;
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .modal-overlay.active .modal-container {
-            transform: translateY(0);
-            opacity: 1;
+        .post-modal .post-header {
+            margin-bottom: 2rem;
         }
 
-        .modal-header {
+        .post-modal .post-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .post-modal .post-date {
+            font-size: 1rem;
+            color: #94a3b8;
+        }
+
+        .post-modal .post-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        .post-modal .post-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .post-modal .post-image {
+            width: 100%;
+            height: 300px;
+        }
+
+        .post-modal .post-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .post-modal .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .post-modal .close-modal:hover {
+            color: var(--primary-color);
+        }
+
+        .post-modal .post-meta {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.5rem;
+            align-items: center;
+            margin-bottom: 2rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--card-border);
         }
 
-        .modal-title {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            font-family: 'Noto Serif SC', serif;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .post-modal .post-tags {
+            margin-bottom: 0;
         }
 
-        .modal-close {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            transition: all 0.3s ease;
-            border-radius: 0.5rem;
+        .post-modal .post-actions {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
         }
 
-        .modal-close:hover {
-            color: var(--primary-color);
-            background: rgba(59, 130, 246, 0.1);
+        .post-modal .comments-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--card-border);
         }
 
-        .message-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-label {
-            color: #e2e8f0;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .form-input {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid var(--card-border);
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            color: #fff;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-
-        textarea.form-input {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .form-submit {
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .form-submit:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .form-submit:disabled {
-            background: #4b5563;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .message-success {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .message-success.active {
-            display: block;
-        }
-
-        .success-icon {
-            font-size: 3rem;
-            color: #4ade80;
+        .post-modal .comments-header {
+            font-size: 1.2rem;
+            color: var(--text-color);
             margin-bottom: 1rem;
         }
 
-        .success-title {
-            font-size: 1.5rem;
-            color: #4ade80;
-            margin-bottom: 0.5rem;
+        /* 添加帖子卡片的点击样式 */
+        .blog-post {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .success-text {
-            color: #94a3b8;
-            font-size: 1rem;
-            line-height: 1.6;
+        .blog-post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
 
-        /* 浮动地球仪提示样式 */
-        .floating-globe-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+        /* 修改博客体验模块样式 */
+        .blog-experience {
+            position: relative;
+        }
+
+        .blog-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            flex-direction: row-reverse;
+            margin-bottom: 2rem;
+        }
+
+        .blog-header h2 {
+            margin: 0;
+        }
+
+        .blog-controls {
+            display: flex;
             gap: 1rem;
-            z-index: 1000;
+            align-items: center;
         }
 
-        .floating-globe-tooltip {
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+        
+
+        .search-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
             padding: 0.75rem 1rem;
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            color: #e2e8f0;
-            font-size: 0.9rem;
-            max-width: 200px;
-            opacity: 0;
-            transform: translateX(20px);
-            transition: all 0.3s ease;
-            pointer-events: none;
-            margin-right: 0.5rem;
-        }
-
-        .floating-globe-container:hover .floating-globe-tooltip {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .tooltip-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .tooltip-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--card-border);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
-        .tooltip-icon {
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .suggestion-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
             color: var(--primary-color);
-            font-size: 1.1rem;
+            font-size: 0.9rem;
         }
 
-        @media (max-width: 768px) {
-            .floating-globe-container {
-                flex-direction: column-reverse;
-                gap: 0.5rem;
-                bottom: 10px;
-                right: 10px;
-            }
-
-            .floating-globe-tooltip {
-                transform: translateY(-10px);
-                margin-right: 0;
-                font-size: 0.8rem;
-                padding: 0.5rem 0.75rem;
-            }
-
-            .floating-globe-container:hover .floating-globe-tooltip {
-                transform: translateY(0);
-            }
+        .suggestion-content {
+            flex: 1;
         }
 
-        @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 2.2rem;
-            }
+        .suggestion-title {
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
         }
+
+        .suggestion-info {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .suggestion-match {
+            color: var(--primary-color);
+        }
+
+        .suggestion-type {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        
     </style>
 </head>
 <body>
-    <header>
-        <nav class="container">
-            <a href="index.html" class="logo">
-                <span class="logo-icon">🌍</span>
-                <span>QKH的旅行幻想时刻</span>
-            </a>
-            <div style="display: flex; align-items: center; gap: 20px;">
-            <div class="nav-links">
-                    <a href="index.html" class="active">主页</a>
-                    <a href="country_details.html?about=true">详情</a>
-                    <a href="travel_guide.html?about=true">旅行攻略</a>
-                </div>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>国家列表</h2>
+                <p>点击查看详情</p>
             </div>
-        </nav>
-    </header>
+            <ul class="country-list" id="countryList">
+                <!-- 国家列表将通过 JavaScript 动态生成 -->
+            </ul>
+        </aside>
 
-    <main>
-        <section class="hero">
-            <div class="container">
-                <h1>现在是——幻想时间</h1>
-                <p>该网站记录了博主曾经去过的一些地方，和未来想要去到的地方。</p>
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <div class="button-group">
+                <a href="index.html" class="back-button">← 返回主页</a>
+                <a href="travel_guide.html" class="guide-button">
+                    <i class="fas fa-map-marked-alt"></i>&nbsp;旅行指南
+                </a>
             </div>
-        </section>
+            <div id="countryContent">
+                <!-- 国家内容将通过 JavaScript 动态加载 -->
+            </div>
+            
+            
+        </main>
+    </div>
 
-        <section class="map-section">
-            <div class="container" style="text-align: center;">
-                <!-- 粒子背景容器 -->
-                <div class="particles-container" id="particles-container"></div>
+    <!-- 添加浮动地球仪容器 -->
+    <div class="floating-globe">
+        <div id="floatingGlobeDiv"></div>
+    </div>
+
+    <!-- 添加 amCharts 依赖 -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Dark.js"></script>
+    <!-- 添加国家地图数据 -->
+    <script src="https://cdn.amcharts.com/lib/5/geodata/usaLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/chinaLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/japanLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/australiaLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/russiaLow.js"></script>
+
+    <script>
+        // 国家数据，添加经纬度信息
+        const countries = {
+            "CN": {
+                name: "中国",
+                status: "visited",
+                description: "中国是一个拥有悠久历史和灿烂文化的国家。从长城到故宫，从兵马俑到西湖，处处展现着中华文明的魅力。",
+                info: {
+                    "地理位置": "位于亚洲东部，太平洋西岸",
+                    "首都": "北京",
+                    "人口": "约14亿",
+                    "语言": "汉语",
+                    "货币": "人民币"
+                },
+                coordinates: [35.8617, 104.1954],
+                zoom: 4,
+                landmarks: [
+                    { name: "北京", coordinates: [39.9042, 116.4074], description: "首都，中国政治、文化中心" },
+                    { name: "上海", coordinates: [31.2304, 121.4737], description: "中国最大的经济中心" },
+                    { name: "广州", coordinates: [23.1291, 113.2644], description: "广东省会，南方经济中心" },
+                    { name: "成都", coordinates: [30.5728, 104.0668], description: "四川省会，西部重要城市" },
+                    { name: "西安", coordinates: [34.3416, 108.9398], description: "古都，丝绸之路起点" }
+                ]
+            },
+            "JP": {
+                name: "日本",
+                status: "visited",
+                description: "日本是一个融合传统与现代的国家。从古老的寺庙到现代的科技，从樱花到富士山，处处展现着独特的日本文化。",
+                info: {
+                    "地理位置": "位于亚洲东部，太平洋西岸",
+                    "首都": "东京",
+                    "人口": "约1.26亿",
+                    "语言": "日语",
+                    "货币": "日元"
+                },
+                coordinates: [36.2048, 138.2529],
+                zoom: 5,
+                landmarks: [
+                    { name: "东京", coordinates: [35.6762, 139.6503], description: "首都，世界最大都市圈" },
+                    { name: "大阪", coordinates: [34.6937, 135.5023], description: "关西地区经济中心" },
+                    { name: "京都", coordinates: [35.0116, 135.7681], description: "千年古都，文化之城" },
+                    { name: "札幌", coordinates: [43.0621, 141.3544], description: "北海道最大城市" },
+                    { name: "福冈", coordinates: [33.5902, 130.4017], description: "九州地区中心城市" }
+                ]
+            },
+            "US": {
+                name: "美国",
+                status: "to-visit",
+                description: "美国是一个充满活力的国家，拥有多元的文化和壮丽的自然景观。从自由女神像到黄石公园，从拉斯维加斯到纽约，处处展现着美国特色。",
+                info: {
+                    "地理位置": "位于北美洲",
+                    "首都": "华盛顿特区",
+                    "人口": "约3.3亿",
+                    "语言": "英语",
+                    "货币": "美元"
+                },
+                coordinates: [37.0902, -95.7129],
+                zoom: 4,
+                landmarks: [
+                    { name: "纽约", coordinates: [40.7128, -74.0060], description: "美国最大城市，世界金融中心" },
+                    { name: "洛杉矶", coordinates: [34.0522, -118.2437], description: "美国娱乐之都" },
+                    { name: "华盛顿特区", coordinates: [38.9072, -77.0369], description: "美国首都" },
+                    { name: "拉斯维加斯", coordinates: [36.1699, -115.1398], description: "世界娱乐之都" },
+                    { name: "旧金山", coordinates: [37.7749, -122.4194], description: "科技创新中心" }
+                ]
+            },
+            "RU": {
+                name: "俄罗斯",
+                status: "to-visit",
+                description: "俄罗斯是世界上最大的国家，拥有丰富的文化遗产和壮丽的自然风光。从克里姆林宫到贝加尔湖，从圣彼得堡到西伯利亚，处处展现着俄罗斯的魅力。",
+                info: {
+                    "地理位置": "横跨欧亚大陆",
+                    "首都": "莫斯科",
+                    "人口": "约1.46亿",
+                    "语言": "俄语",
+                    "货币": "卢布"
+                },
+                coordinates: [61.5240, 105.3188],
+                zoom: 3,
+                landmarks: [
+                    { name: "莫斯科", coordinates: [55.7558, 37.6173], description: "首都，政治文化中心" },
+                    { name: "圣彼得堡", coordinates: [59.9343, 30.3351], description: "文化之都，前帝国首都" },
+                    { name: "新西伯利亚", coordinates: [55.0084, 82.9357], description: "西伯利亚最大城市" },
+                    { name: "叶卡捷琳堡", coordinates: [56.8389, 60.6057], description: "乌拉尔地区中心" },
+                    { name: "符拉迪沃斯托克", coordinates: [43.1198, 131.8869], description: "远东重要港口" }
+                ]
+            },
+            "AU": {
+                name: "澳大利亚",
+                status: "to-visit",
+                description: "澳大利亚是一个充满自然奇观的国家。从大堡礁到悉尼歌剧院，从袋鼠到考拉，处处展现着独特的澳大利亚风情。",
+                info: {
+                    "地理位置": "位于大洋洲",
+                    "首都": "堪培拉",
+                    "人口": "约2500万",
+                    "语言": "英语",
+                    "货币": "澳元"
+                },
+                coordinates: [-25.2744, 151.2093],
+                zoom: 4,
+                landmarks: [
+                    { name: "悉尼", coordinates: [-33.8688, 151.2093], description: "最大城市，新南威尔士州首府" },
+                    { name: "墨尔本", coordinates: [-37.8136, 144.9631], description: "维多利亚州首府，文化之都" },
+                    { name: "布里斯班", coordinates: [-27.4698, 153.0251], description: "昆士兰州首府" },
+                    { name: "珀斯", coordinates: [-31.9505, 115.8605], description: "西澳大利亚州首府" },
+                    { name: "堪培拉", coordinates: [-35.2809, 149.1300], description: "澳大利亚首都" }
+                ]
+            }
+        };
+
+        // 获取URL参数
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                id: params.get('id'),
+                status: params.get('status')
+            };
+        }
+
+        // 生成国家列表
+        function generateCountryList() {
+            const countryList = document.getElementById('countryList');
+            countryList.innerHTML = '';
+
+            Object.entries(countries).forEach(([code, country]) => {
+                const li = document.createElement('li');
+                li.className = 'country-item';
                 
-                <div class="map-section-content">
-                <div class="map-container">
-                    <!-- 地球光晕效果 -->
-                    <div class="map-glow"></div>
-                    <div id="chartdiv"></div>
-                </div>
+                const statusClass = country.status === 'visited' ? 'status-visited' : 'status-to-visit';
+                const statusText = country.status === 'visited' ? '已去过' : '计划前往';
+                
+                li.innerHTML = `
+                    <a href="?id=${code}&status=${country.status}" class="country-link">
+                        <span class="country-status ${statusClass}"></span>
+                        <span>${country.name}</span>
+                    </a>
+                `;
+                
+                countryList.appendChild(li);
+            });
+        }
 
-                    <!-- 交互提示栏 -->
-                    <div class="tips-panel">
-                        <h3>
-                            <span class="tip-icon">💡</span>
-                            交互指南
-                        </h3>
-                        <div class="tips-list">
-                            <div class="tip-item">
-                                <span class="tip-icon">🌍</span>
-                                <div class="tip-content">
-                                    拖拽地球可以自由旋转查看，松开后会继续自动旋转
+        // 生成国家详情内容
+        function generateCountryContent(countryCode) {
+            const country = countries[countryCode];
+            if (!country) return;
+
+            const content = document.getElementById('countryContent');
+            const statusClass = country.status === 'visited' ? 'badge-visited' : 'badge-to-visit';
+            const statusText = country.status === 'visited' ? '已去过' : '计划前往';
+
+            content.innerHTML = `
+                <div class="top-section">
+                    <div class="country-map">
+                        <div id="countryMap"></div>
+                    </div>
+
+                    <div class="country-info-section">
+                        <div class="country-header">
+                            <div class="country-status-badge ${statusClass}">${statusText}</div>
+                            <h1>${country.name}</h1>
+                        </div>
+
+                        <div class="country-info">
+                            ${Object.entries(country.info).map(([key, value]) => `
+                                <div class="info-card">
+                                    <h3>${key}</h3>
+                                    <p>${value}</p>
                                 </div>
-                            </div>
-                            <div class="tip-item">
-                                <span class="tip-icon">🎯</span>
-                                <div class="tip-content">
-                                    点击标注的国家可以查看详细信息和旅行计划
-                                </div>
-                            </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="country-description">
+                            <h2>国家简介</h2>
+                            <p>${country.description}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="map-legend">
-                    <div class="legend-item">
-                        <div class="legend-color visited-color"></div>
-                        <span>已去过</span>
+                <div style="display: flex; gap: 2rem; justify-content: space-between; flex-wrap: wrap;">
+                    <div class="population-heatmap-section">
+                        <h2>各地区接待游客（估值）热力图</h2>
+                        <div id="populationHeatmap" style="width: 100%; height: 400px;"></div>
+                        <p class="data-source">数据来源于网页搜索和GPT，存在不完整或错误仅供参考</p>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color to-visit-color"></div>
-                        <span>幻想前往</span>
+
+                    <div class="travel-advice-section">
+                        <h2>旅行建议</h2>
+                        <div class="travel-advice-content" id="travelAdvice">
+                            <!-- 建议内容将通过JavaScript动态加载 -->
+                        </div>
+                        <div class="travel-advice-actions">
+                            <button onclick="openFullscreen()" class="action-button">
+                                <span class="button-icon">🔍</span> 放大查看
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <p>探索世界，记录足迹</p>
-                <div class="footer-links">
-                    <a href="#">主页</a>
-                    <a href="country_details.html?about=true">详情</a>
-                    <a href="#">联系我</a>
-                </div>
-                <p>&copy; 2024 我的旅行地图. 保留所有权利。</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- 修改浮动地球仪容器结构 -->
-    <div class="floating-globe-container">
-        <div class="floating-globe-tooltip">
-            <div class="tooltip-list">
-                <div class="tooltip-item">
-                    <span class="tooltip-icon">🔄</span>
-                    <span>拖拽交互</span>
-                </div>
-                <div class="tooltip-item">
-                    <span class="tooltip-icon">💬</span>
-                    <span>点击留言</span>
-                </div>
-            </div>
-        </div>
-        <div class="floating-globe">
-            <div id="floatingGlobeDiv"></div>
-        </div>
-    </div>
-
-    <!-- 添加模态对话框 -->
-    <div class="modal-overlay" id="messageModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <span class="tip-icon">💌</span>
-                    给网站开发者留言
-                </h2>
-                <button class="modal-close" onclick="closeMessageModal()">×</button>
-            </div>
-            <div class="message-form" id="messageForm">
-                <div class="form-group">
-                    <label class="form-label">你的称呼</label>
-                    <input type="text" class="form-input" id="nameInput" placeholder="请输入你的名字">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">联系方式（选填）</label>
-                    <input type="text" class="form-input" id="contactInput" placeholder="邮箱或其他联系方式">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">留言内容</label>
-                    <textarea class="form-input" id="messageInput" placeholder="有什么想对开发者说的..."></textarea>
-                </div>
-                <button class="form-submit" onclick="submitMessage()">
-                    <span class="tip-icon">📨</span>
-                    发送留言
-                </button>
-            </div>
-            <div class="message-success" id="messageSuccess">
-                <div class="success-icon">✨</div>
-                <h3 class="success-title">留言发送成功！</h3>
-                <p class="success-text">感谢你的留言，我会认真阅读每一条反馈。</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // 已去过的国家（使用ISO 3166-1 alpha-2国家代码）
-        const visitedCountries = ["CN", "JP"];
-        
-        // 幻想前往的国家
-        const toVisitCountries = ["US", "RU", "AU"];
-        
-        // 国家中文名称映射
-        const countryNames = {
-            "CN": "中国",
-            "JP": "日本",
-            "US": "美国", 
-            "RU": "俄罗斯",
-            "AU": "澳大利亚"
-        };
-        
-        // 等待DOM加载完成
-        document.addEventListener("DOMContentLoaded", function() {
-            // 初始化amCharts
-            am5.ready(function() {
-                // 创建根元素
-                const root = am5.Root.new("chartdiv");
-                
-                // 保存根元素到全局
-                window.chartRoot = root;
-                
-                // 设置暗色主题
-                    root.setThemes([am5themes_Animated.new(root), am5themes_Dark.new(root)]);
-                
-                // 创建地图图表
-                const chart = root.container.children.push(
-                    am5map.MapChart.new(root, {
-                        projection: am5map.geoOrthographic(),
-                        panX: "rotateX",
-                        panY: "rotateY",
-                        paddingLeft: 0,
-                        paddingRight: 0,
-                        paddingBottom: 0,
-                        paddingTop: 0,
-                        wheelX: "rotateX",
-                        wheelY: "rotateY",
-                        maxZoomLevel: 1,
-                        minZoomLevel: 1
-                    })
-                );
-                
-                // 添加自动旋转控制
-                let rotationInterval;
-                let isAutoRotating = true;
-                let currentRotation = 0;
-                const rotationSpeed = 0.5; // 旋转速度
-
-                function startAutoRotation() {
-                    if (rotationInterval) return;
-                    // 获取当前旋转角度
-                    currentRotation = chart.get("rotationX");
-                    rotationInterval = setInterval(() => {
-                        currentRotation += rotationSpeed;
-                        chart.set("rotationX", currentRotation);
-                    }, 50);
-                }
-
-                function stopAutoRotation() {
-                    if (rotationInterval) {
-                        clearInterval(rotationInterval);
-                        rotationInterval = null;
-                    }
-                }
-
-                // 鼠标悬停时停止旋转
-                chart.events.on("pointerover", function() {
-                    stopAutoRotation();
-                });
-
-                // 鼠标离开时恢复旋转
-                chart.events.on("pointerout", function() {
-                    if (isAutoRotating) {
-                        startAutoRotation();
-                    }
-                });
-
-                // 拖动结束时更新当前旋转角度
-                chart.events.on("dragend", function() {
-                    currentRotation = chart.get("rotationX");
-                });
-
-                // 双击切换自动旋转
-                chart.events.on("dblclick", function() {
-                    isAutoRotating = !isAutoRotating;
-                    if (isAutoRotating) {
-                        startAutoRotation();
-                    } else {
-                        stopAutoRotation();
-                    }
-                });
-
-                // 开始自动旋转
-                startAutoRotation();
-
-                // 添加拖动控制
-                chart.set("panX", "rotateX");
-                chart.set("panY", "rotateY");
-                
-                // 禁用鼠标滚轮缩放
-                root.events.on("wheel", function(ev) {
-                    ev.originalEvent.preventDefault();
-                    return false;
-                });
-                
-                // 更彻底地禁用缩放
-                chart.set("wheelX", "none");
-                chart.set("wheelY", "none");
-                chart.set("maxZoomLevel", 1);
-                chart.set("minZoomLevel", 1);
-                chart.set("maxPanOut", 0);
-                
-                // 添加地球背景 - 海洋
-                chart.series.push(
-                    am5map.MapPolygonSeries.new(root, {
-                        fill: am5.color(0x1e3a8a),
-                        stroke: am5.color(0x3b82f6),
-                        strokeOpacity: 0.2,
-                        fillOpacity: 0.8
-                    })
-                ).mapPolygons.template.setAll({
-                    fill: am5.color(0x1e3a8a),
-                    strokeOpacity: 0,
-                    interactive: false
-                });
-                
-                // 添加地图外的轮廓圆环
-                const graticuleSeries = chart.series.push(
-                    am5map.GraticuleSeries.new(root, {
-                        step: 10
-                    })
-                );
-                graticuleSeries.mapLines.template.setAll({
-                    stroke: am5.color(0xffffff),
-                    strokeOpacity: 0.1
-                });
-                
-                // 创建多边形系列 - 所有国家底图
-                const worldSeries = chart.series.push(
-                    am5map.MapPolygonSeries.new(root, {
-                        geoJSON: am5geodata_worldLow,
-                        exclude: ["AQ"], // 排除南极洲
-                        fill: am5.color(0x334155),
-                        stroke: am5.color(0xffffff),
-                        strokeWidth: 0.5,
-                        strokeOpacity: 0.5
-                    })
-                );
-                
-                worldSeries.mapPolygons.template.setAll({
-                    fillOpacity: 0.8,
-                    templateField: "polygonSettings",
-                    tooltipText: "{name}",
-                    interactive: true
-                });
-                
-                // 设置鼠标悬停效果
-                worldSeries.mapPolygons.template.states.create("hover", {
-                    fill: am5.color(0x3b82f6),
-                    strokeWidth: 1
-                });
-                
-                // 为已访问国家创建系列
-                const visitedSeries = chart.series.push(
-                    am5map.MapPolygonSeries.new(root, {
-                        geoJSON: am5geodata_worldLow,
-                        include: visitedCountries,
-                        fill: am5.color(0x4ade80),
-                        stroke: am5.color(0xffffff),
-                        strokeWidth: 0.5,
-                        strokeOpacity: 0.8
-                    })
-                );
-                
-                // 设置已访问国家样式
-                visitedSeries.mapPolygons.template.setAll({
-                    fillOpacity: 0.8,
-                    tooltipText: "{name}",
-                    interactive: true
-                });
-                
-                // 添加鼠标悬停效果
-                visitedSeries.mapPolygons.template.states.create("hover", {
-                    fill: am5.color(0x3b82f6),
-                    strokeWidth: 2,
-                    stroke: am5.color(0xffffff)
-                });
-                
-                // 自定义工具提示
-                visitedSeries.mapPolygons.template.events.on("pointerover", function(ev) {
-                    const countryId = ev.target.dataItem.dataContext.id;
-                    const countryName = countryNames[countryId] || ev.target.dataItem.dataContext.name;
-                    const tooltip = ev.target.get("tooltip");
-                    if (tooltip) {
-                        tooltip.set("html", `
-                            <div style="padding: 10px; background: rgba(0,0,0,0.8); border-radius: 5px;">
-                                <h3 style="margin: 0 0 5px 0; color: #4ade80;">${countryName}</h3>
-                                <p style="margin: 0; color: #fff;">已去过</p>
-                                <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9em;">点击查看详情</p>
+                ${countryCode === 'CN' || countryCode === 'JP' || countryCode === 'RU' || countryCode === 'US' || countryCode === 'AU' ? `
+                    <div class="blog-experience">
+                        <div class="blog-header">
+                            <h2>${countryCode === 'CN' || countryCode === 'JP' ? '站长游记分享' : '站长想去的地方'}</h2>
+                            <div class="blog-controls">
+                                
                             </div>
-                        `);
-                    }
-                });
-                
-                // 点击已去过国家显示信息
-                visitedSeries.mapPolygons.template.events.on("click", function(ev) {
-                    const countryId = ev.target.dataItem.dataContext.id;
-                    window.location.href = `country_details.html?id=${countryId}&status=visited`;
-                });
-                
-                // 为计划访问国家创建系列
-                const toVisitSeries = chart.series.push(
-                    am5map.MapPolygonSeries.new(root, {
-                        geoJSON: am5geodata_worldLow,
-                        include: toVisitCountries,
-                        fill: am5.color(0xfbbf24),
-                        stroke: am5.color(0xffffff),
-                        strokeWidth: 0.5,
-                        strokeOpacity: 0.8
-                    })
-                );
-                
-                // 设置计划访问国家样式
-                toVisitSeries.mapPolygons.template.setAll({
-                    fillOpacity: 0.8,
-                    tooltipText: "{name}",
-                    interactive: true
-                });
-                
-                // 添加鼠标悬停效果
-                toVisitSeries.mapPolygons.template.states.create("hover", {
-                    fill: am5.color(0x3b82f6),
-                    strokeWidth: 2,
-                    stroke: am5.color(0xffffff)
-                });
-                
-                // 自定义工具提示
-                toVisitSeries.mapPolygons.template.events.on("pointerover", function(ev) {
-                    const countryId = ev.target.dataItem.dataContext.id;
-                    const countryName = countryNames[countryId] || ev.target.dataItem.dataContext.name;
-                    const tooltip = ev.target.get("tooltip");
-                    if (tooltip) {
-                        tooltip.set("html", `
-                            <div style="padding: 10px; background: rgba(0,0,0,0.8); border-radius: 5px;">
-                                <h3 style="margin: 0 0 5px 0; color: #fbbf24;">${countryName}</h3>
-                                <p style="margin: 0; color: #fff;">计划前往</p>
-                                <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9em;">点击查看详情</p>
-                            </div>
-                        `);
-                    }
-                });
-                
-                // 点击计划前往国家显示信息
-                toVisitSeries.mapPolygons.template.events.on("click", function(ev) {
-                    const countryId = ev.target.dataItem.dataContext.id;
-                    window.location.href = `country_details.html?id=${countryId}&status=to-visit`;
-                });
-                
-                // 添加旋转动画
-                chart.animate({
-                    key: "rotationX",
-                    from: 0,
-                    to: 360,
-                    duration: 60000,
-                    loops: Infinity
-                });
-                
-                // 添加缩放控制
-                chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
-                chart.get("zoomControl").set("forceHidden", true); // 隐藏默认缩放控件，保持球形
-                
-                // 背景
-                chart.set("background", am5.Rectangle.new(root, {
-                    fill: am5.color(0x0c1b33),
-                    fillOpacity: 1
-                }));
-                
-                // 添加飞行线
-                function addFlightLines() {
-                    // 创建线系列
-                    const lineSeries = chart.series.push(
-                        am5map.MapLineSeries.new(root, {})
-                    );
+                        </div>
+                        <div class="search-results" id="searchResults"></div>
+                        <div class="blog-posts" id="blogPosts">
+                            ${getBlogPosts(countryCode)}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
 
-                    // 线样式
-                    lineSeries.mapLines.template.setAll({
-                        stroke: am5.color(0x3b82f6),
-                        strokeWidth: 2,
-                        strokeOpacity: 0.5,
-                        strokeDasharray: [3, 3]
-                    });
-
-                    // 为已访问国家添加连接线
-                    const center = { latitude: 35.8617, longitude: 104.1954 }; // 中国中心点
-                    
-                    // 国家地理中心点数据
-                    const geoPoints = {
-                        "JP": { latitude: 36.2048, longitude: 138.2529 },
-                        "US": { latitude: 37.0902, longitude: -95.7129 },
-                        "GB": { latitude: 55.3781, longitude: -3.4360 },
-                        "FR": { latitude: 46.2276, longitude: 2.2137 },
-                        "DE": { latitude: 51.1657, longitude: 10.4515 },
-                        "IT": { latitude: 41.8719, longitude: 12.5674 },
-                        "AU": { latitude: -25.2744, longitude: 133.7751 },
-                        "NZ": { latitude: -40.9006, longitude: 174.8860 },
-                        "BR": { latitude: -14.2350, longitude: -51.9253 },
-                        "ZA": { latitude: -30.5595, longitude: 22.9375 },
-                        "EG": { latitude: 26.8206, longitude: 30.8025 },
-                        "IN": { latitude: 20.5937, longitude: 78.9629 }
-                    };
-
-                    // 添加连接线
-                    visitedCountries.forEach(countryCode => {
-                        if (countryCode === "CN") return; // 跳过中国自己
-                        
-                        const targetPoint = geoPoints[countryCode];
-                        if (!targetPoint) return;
-                        
-                        lineSeries.pushDataItem({
-                            pointsToConnect: [
-                                { latitude: center.latitude, longitude: center.longitude },
-                                { latitude: targetPoint.latitude, longitude: targetPoint.longitude }
-                            ]
-                        });
-                    });
-                    
-                    // 添加动画效果
-                    setTimeout(() => {
-                        const lines = lineSeries.mapLines.values;
-                        lines.forEach(line => {
-                            const totalLength = 6; // strokeDasharray 总长度 (3+3)
-                            line.animate({
-                                key: "strokeDashoffset",
-                                from: totalLength,
-                                to: 0,
-                                duration: 3000,
-                                loops: Infinity,
-                                easing: am5.ease.linear
-                            });
-                            
-                            line.animate({
-                                key: "strokeOpacity",
-                                from: 0.2,
-                                to: 0.5,
-                                duration: 1500,
-                                loops: Infinity,
-                                easing: am5.ease.yoyo(am5.ease.cubic)
-                            });
-                        });
-                    }, 1000);
+            // 更新侧边栏活动状态
+            document.querySelectorAll('.country-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(countryCode)) {
+                    link.classList.add('active');
                 }
-
-                // 添加星星
-                function addStars() {
-                    // 创建星星系列
-                    const starSeries = chart.series.push(
-                        am5map.MapPointSeries.new(root, {})
-                    );
-                    
-                    // 星星样式
-                    starSeries.bullets.push(function() {
-                        const star = am5.Circle.new(root, {
-                            radius: Math.random() * 2 + 1,
-                            fill: am5.color(0xffffff),
-                            fillOpacity: Math.random() * 0.3 + 0.2,
-                            strokeOpacity: 0
-                        });
-                        
-                        // 闪烁效果
-                        star.animate({
-                            key: "fillOpacity",
-                            from: 0.1,
-                            to: 0.5,
-                            duration: Math.random() * 2000 + 1000,
-                            loops: Infinity,
-                            easing: am5.ease.yoyo(am5.ease.cubic)
-                        });
-                        
-                        return am5.Bullet.new(root, {
-                            sprite: star
-                        });
-                    });
-                    
-                    // 添加随机星星
-                    for (let i = 0; i < 100; i++) {
-                        starSeries.data.push({
-                            geometry: {
-                                type: "Point",
-                                coordinates: [
-                                    Math.random() * 360 - 180, // 经度
-                                    Math.random() * 180 - 90   // 纬度
-                                ]
-                            }
-                        });
-                    }
-                }
-
-                // 添加飞行线和星星
-                addFlightLines();
-                addStars();
-                
-                // 居中显示
-                chart.appear(1000, 100);
-                
-                // 更新地图主题函数 - 简化版本
-                window.updateMapTheme = function() {
-                    // 检查全局chartRoot是否存在
-                    if (!window.chartRoot) return;
-                    
-                    const root = window.chartRoot;
-                    
-                    // 获取当前模式中的CSS变量
-                    const getThemeColor = (varName) => {
-                        return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-                    };
-                    
-                    // 转换CSS颜色变量为十六进制
-                    const cssColorToHex = (cssColor) => {
-                        if (cssColor.startsWith('#')) {
-                            return parseInt(cssColor.slice(1), 16);
-                        }
-                        
-                        const tempElem = document.createElement('div');
-                        tempElem.style.color = cssColor;
-                        document.body.appendChild(tempElem);
-                        
-                        const computedColor = getComputedStyle(tempElem).color;
-                        document.body.removeChild(tempElem);
-                        
-                        const rgbMatch = computedColor.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
-                        if (rgbMatch) {
-                            const r = parseInt(rgbMatch[1]);
-                            const g = parseInt(rgbMatch[2]);
-                            const b = parseInt(rgbMatch[3]);
-                            return (r << 16) + (g << 8) + b;
-                        }
-                        
-                        return 0x000000;
-                    };
-                    
-                    try {
-                        const chart = root.container.children.getIndex(0);
-                        if (!chart) return;
-                        
-                        // 更新海洋背景色
-                        const oceanSeries = chart.series.getIndex(0);
-                        if (oceanSeries && oceanSeries.mapPolygons && oceanSeries.mapPolygons.template) {
-                            oceanSeries.mapPolygons.template.set("fill", 
-                                am5.color(cssColorToHex(getThemeColor('--globe-ocean-color')))
-                            );
-                        }
-                        
-                        // 更新网格线
-                        const graticuleSeries = chart.series.getIndex(1);
-                        if (graticuleSeries && graticuleSeries.mapLines && graticuleSeries.mapLines.template) {
-                            graticuleSeries.mapLines.template.set("stroke", 
-                                am5.color(cssColorToHex(getThemeColor('--globe-grid-color')))
-                            );
-                        }
-                        
-                        // 更新国家基本色
-                        const worldSeries = chart.series.getIndex(2);
-                        if (worldSeries && worldSeries.mapPolygons && worldSeries.mapPolygons.template) {
-                            worldSeries.mapPolygons.template.set("fill", 
-                                am5.color(cssColorToHex(getThemeColor('--globe-countries-color')))
-                            );
-                        }
-                        
-                        // 遍历所有系列，更新飞行线和星星系列
-                        for (let i = 0; i < chart.series.length; i++) {
-                            const series = chart.series.getIndex(i);
-                            
-                            if (series instanceof am5map.MapLineSeries && series.mapLines && series.mapLines.template) {
-                                series.mapLines.template.set("stroke", 
-                                    am5.color(cssColorToHex(getThemeColor('--primary-color')))
-                                );
-                            }
-                            
-                            if (series instanceof am5map.MapPointSeries && series.bullets) {
-                                series.bullets.each(function(bullet) {
-                                    if (bullet.get("sprite")) {
-                                        bullet.get("sprite").set("fill", am5.color(0xffffff));
-                                    }
-                                });
-                            }
-                        }
-                        
-                        // 更新背景
-                        chart.set("background", am5.Rectangle.new(root, {
-                            fill: am5.color(cssColorToHex(getThemeColor('--globe-background'))),
-                            fillOpacity: 1
-                        }));
-                        
-                    } catch (error) {
-                        console.log('地图主题更新失败', error);
-                    }
-                    
-                    // 更新地图图例样式
-                    const mapLegend = document.querySelector('.map-legend');
-                    if (mapLegend) {
-                        mapLegend.style.backgroundColor = getThemeColor('--nav-background');
-                        mapLegend.style.borderColor = getThemeColor('--card-border');
-                        mapLegend.style.boxShadow = `0 8px 20px ${getThemeColor('--card-shadow-color')}`;
-                    }
-                    
-                    // 更新光晕效果
-                    const mapGlow = document.querySelector('.map-glow');
-                    if (mapGlow) {
-                        const glowColor = getThemeColor('--globe-background');
-                        mapGlow.style.background = `radial-gradient(circle at center, ${glowColor} 30%, transparent 70%)`;
-                    }
-                };
-                
-                // 应用初始主题
-                setTimeout(() => {
-                    window.updateMapTheme();
-                }, 200);
             });
-        });
 
-        // 添加粒子动画
-        function createParticles() {
-            const container = document.getElementById('particles-container');
-            if (!container) return;
-            
-            // 清除现有的粒子
-            container.innerHTML = '';
-            
-            // 创建新粒子
-            const particleCount = window.innerWidth < 768 ? 15 : 30;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                // 随机尺寸
-                const size = Math.random() * 6 + 2;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                
-                // 随机位置
-                const x = Math.random() * 100;
-                const y = Math.random() * 100;
-                particle.style.left = `${x}%`;
-                particle.style.top = `${y}%`;
-                
-                // 随机动画时长和延迟
-                const duration = Math.random() * 20 + 15;
-                const delay = Math.random() * 10;
-                particle.style.animationDuration = `${duration}s`;
-                particle.style.animationDelay = `${delay}s`;
-                
-                // 添加到容器
-                container.appendChild(particle);
+            // 初始化地图
+            initMap(country);
+
+            // 创建热力图
+            if (populationData[countryCode]) {
+                setTimeout(() => {
+                    createHeatmap(countryCode);
+                }, 100);
+            }
+
+            // 更新旅行建议
+            updateTravelAdvice(countryCode);
+        }
+
+        // 自定义标记图标类
+        class CustomMarker extends L.DivIcon {
+            constructor(isCapital = false) {
+                const size = isCapital ? 40 : 32;
+                super({
+                    className: `custom-marker${isCapital ? ' capital' : ''}`,
+                    html: '',
+                    iconSize: [size, size],
+                    iconAnchor: [size/2, size/2],
+                    popupAnchor: [0, -size/2]
+                });
             }
         }
 
-        // 页面加载和窗口大小改变时创建粒子
-        window.addEventListener('load', createParticles);
-        window.addEventListener('resize', createParticles);
+        // 修改地图图层配置
+        const mapLayers = {
+            dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+            streets: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        };
+
+        // 修改初始化地图函数
+        function initMap(country) {
+            // 如果已存在地图实例，先移除它
+            if (window.currentMap) {
+                window.currentMap.remove();
+            }
+
+            // 创建地图实例
+            const map = L.map('countryMap', {
+                zoomControl: false,
+                minZoom: 2,
+                maxZoom: 18
+            }).setView(country.coordinates, country.zoom);
+
+            // 创建图层
+            window.currentLayers = {
+                dark: L.tileLayer(mapLayers.dark, {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }),
+                streets: L.tileLayer(mapLayers.streets, {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19
+                }),
+                satellite: L.tileLayer(mapLayers.satellite, {
+                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                    maxZoom: 19
+                })
+            };
+
+            // 添加默认暗色主题图层
+            window.currentLayers.dark.addTo(map);
+
+            // 添加图层控制器
+            const layerControl = L.control.layers({
+                '暗色主题': window.currentLayers.dark,
+                '街道地图': window.currentLayers.streets,
+                '卫星影像': window.currentLayers.satellite
+            }, null, {
+                position: 'topright'
+            }).addTo(map);
+
+            // 添加自定义缩放控件
+            L.control.zoom({
+                position: 'topright'
+            }).addTo(map);
+
+            // 添加归位按钮
+            const resetButton = L.control({position: 'topright'});
+            resetButton.onAdd = function() {
+                const button = L.DomUtil.create('button', 'reset-view-button');
+                button.innerHTML = '重置视图';
+                button.onclick = function() {
+                    map.setView(country.coordinates, country.zoom);
+                    switchToLayer('dark');
+                };
+                return button;
+            };
+            resetButton.addTo(map);
+
+            // 添加地标标记
+            country.landmarks.forEach(landmark => {
+                const isCapital = landmark.name === country.info['首都'];
+                const marker = L.marker(landmark.coordinates, {
+                    icon: new CustomMarker(isCapital)
+                }).addTo(map);
+
+                // 创建弹出窗口内容
+                const popupContent = `
+                    <div class="popup-content">
+                        <div class="popup-title">${landmark.name}</div>
+                        <div class="popup-description">${landmark.description}</div>
+                        <div class="popup-button" onclick="zoomToCity(${landmark.coordinates[0]}, ${landmark.coordinates[1]}, '${landmark.name}', ${isCapital})">
+                            查看城市详情
+                        </div>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent);
+
+                // 添加悬停效果
+                marker.on('mouseover', function() {
+                    this.openPopup();
+                });
+            });
+
+            // 将地图实例存储在全局变量中
+            window.currentMap = map;
+        }
+
+        // 切换地图图层的辅助函数
+        function switchToLayer(layerName) {
+            if (!window.currentMap || !window.currentLayers) return;
+
+            // 移除所有现有图层
+            Object.values(window.currentLayers).forEach(layer => {
+                if (window.currentMap.hasLayer(layer)) {
+                    window.currentMap.removeLayer(layer);
+                }
+            });
+
+            // 添加指定图层
+            window.currentLayers[layerName].addTo(window.currentMap);
+        }
+
+        // 修改缩放到城市的函数
+        function zoomToCity(lat, lng, cityName, isCapital) {
+            if (!window.currentMap) return;
+
+            // 切换到街道地图图层
+            switchToLayer('streets');
+
+            // 平滑缩放到城市
+            window.currentMap.flyTo([lat, lng], 14, {
+                duration: 1.5,
+                easeLinearity: 0.25
+            });
+
+            // 移除旧的信息面板（如果存在）
+            if (window.currentCityInfo) {
+                window.currentCityInfo.remove();
+            }
+
+            // 添加城市信息面板
+            const cityInfoControl = L.control({position: 'bottomleft'});
+            cityInfoControl.onAdd = function() {
+                const div = L.DomUtil.create('div', 'city-info-panel');
+                div.innerHTML = `
+                    <div class="city-info-header">
+                        <h3>${cityName}</h3>
+                        ${isCapital ? '<span class="capital-badge">首都</span>' : ''}
+                    </div>
+                    <div class="city-info-content">
+                        <p>正在加载城市信息...</p>
+                    </div>
+                    <div class="city-info-actions">
+                        <button onclick="toggleMapView()">切换地图视图</button>
+                        <button onclick="resetView()">返回国家视图</button>
+                    </div>
+                `;
+                return div;
+            };
+            
+            cityInfoControl.addTo(window.currentMap);
+            window.currentCityInfo = cityInfoControl;
+
+            // 加载并显示城市兴趣点
+            loadCityPOIs(lat, lng, cityName);
+        }
+
+        // 切换地图视图
+        function toggleMapView() {
+            if (!window.currentMap || !window.currentLayers) return;
+
+            if (window.currentMap.hasLayer(window.currentLayers.streets)) {
+                switchToLayer('satellite');
+            } else if (window.currentMap.hasLayer(window.currentLayers.satellite)) {
+                switchToLayer('streets');
+            }
+        }
+
+        // 重置视图
+        function resetView() {
+            if (!window.currentMap) return;
+            
+            const params = new URLSearchParams(window.location.search);
+            const countryCode = params.get('id') || Object.keys(countries)[0];
+            const country = countries[countryCode];
+
+            if (country) {
+                window.currentMap.flyTo(country.coordinates, country.zoom, {
+                    duration: 1.5,
+                    easeLinearity: 0.25
+                });
+                switchToLayer('dark');
+
+                // 移除城市信息面板
+                if (window.currentCityInfo) {
+                    window.currentCityInfo.remove();
+                }
+
+                // 移除 POI 图层
+                if (window.currentPOILayer) {
+                    window.currentMap.removeLayer(window.currentPOILayer);
+                }
+            }
+        }
+
+        // 在 script 标签内添加 POI 图层管理
+        let poiLayers = {
+            attractions: L.layerGroup(),
+            restaurants: L.layerGroup(),
+            transport: L.layerGroup()
+        };
+
+        // 修改加载城市兴趣点函数
+        function loadCityPOIs(lat, lng, cityName) {
+            // 清除现有的所有 POI 图层
+            Object.values(poiLayers).forEach(layer => {
+                if (window.currentMap && window.currentMap.hasLayer(layer)) {
+                    window.currentMap.removeLayer(layer);
+                }
+                layer.clearLayers();
+            });
+
+            // 构建查询
+            const queries = {
+                attractions: `
+                    [out:json][timeout:25];
+                    (
+                        node["tourism"](around:3000,${lat},${lng});
+                        node["historic"](around:3000,${lat},${lng});
+                        node["leisure"](around:3000,${lat},${lng});
+                    );
+                    out body;
+                `,
+                restaurants: `
+                    [out:json][timeout:25];
+                    (
+                        node["amenity"="restaurant"](around:2000,${lat},${lng});
+                        node["amenity"="cafe"](around:2000,${lat},${lng});
+                        node["amenity"="bar"](around:2000,${lat},${lng});
+                    );
+                    out body;
+                `,
+                transport: `
+                    [out:json][timeout:25];
+                    (
+                        node["public_transport"="station"](around:3000,${lat},${lng});
+                        node["railway"="station"](around:3000,${lat},${lng});
+                        node["amenity"="bus_station"](around:3000,${lat},${lng});
+                        node["aeroway"="aerodrome"](around:5000,${lat},${lng});
+                    );
+                    out body;
+                `
+            };
+
+            // 为每种类型的 POI 发起请求
+            Object.entries(queries).forEach(([type, query]) => {
+                fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    body: query
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!window.currentMap) return;
+
+                    data.elements.forEach(element => {
+                        if (element.tags) {
+                            const marker = L.marker([element.lat, element.lon], {
+                                icon: L.divIcon({
+                                    className: `poi-marker ${type}`,
+                                    html: `<i class="poi-icon ${getPOIIcon(type, element.tags)}"></i>`,
+                                    iconSize: [24, 24]
+                                })
+                            });
+
+                            const popupContent = `
+                                <div class="poi-popup">
+                                    <div class="poi-title">${element.tags.name || getPOIDefaultName(type)}</div>
+                                    <div class="poi-type">${getPOIType(type, element.tags)}</div>
+                                    ${element.tags.description ? `<div class="poi-description">${element.tags.description}</div>` : ''}
+                                    ${element.tags.website ? `<a href="${element.tags.website}" target="_blank" class="poi-link">访问网站</a>` : ''}
+                                </div>
+                            `;
+
+                            marker.bindPopup(popupContent);
+                            poiLayers[type].addLayer(marker);
+                        }
+                    });
+
+                    // 更新信息面板中的计数
+                    updatePOICounts();
+                })
+                .catch(error => {
+                    console.error(`加载${type}失败:`, error);
+                });
+            });
+        }
+
+        // 更新 POI 计数
+        function updatePOICounts() {
+            const counts = {
+                attractions: poiLayers.attractions.getLayers().length,
+                restaurants: poiLayers.restaurants.getLayers().length,
+                transport: poiLayers.transport.getLayers().length
+            };
+
+            const panel = document.querySelector('.city-info-content');
+            if (panel) {
+                panel.innerHTML = `
+                    <div class="city-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">景点</span>
+                            <span class="stat-value">${counts.attractions}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">餐厅</span>
+                            <span class="stat-value">${counts.restaurants}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">交通</span>
+                            <span class="stat-value">${counts.transport}</span>
+                        </div>
+                    </div>
+                    <div class="city-actions">
+                        <button onclick="togglePOILayer('attractions')" class="poi-button" data-type="attractions">
+                            <span class="button-icon">🏛️</span> 附近景点
+                        </button>
+                        <button onclick="togglePOILayer('restaurants')" class="poi-button" data-type="restaurants">
+                            <span class="button-icon">🍽️</span> 美食餐厅
+                        </button>
+                        <button onclick="togglePOILayer('transport')" class="poi-button" data-type="transport">
+                            <span class="button-icon">🚉</span> 交通信息
+                        </button>
+                    </div>
+                `;
+
+                // 更新按钮状态
+                updatePOIButtonStates();
+            }
+        }
+
+        // 切换 POI 图层显示
+        function togglePOILayer(type) {
+            if (!window.currentMap || !poiLayers[type]) return;
+
+            const map = window.currentMap;
+            if (map.hasLayer(poiLayers[type])) {
+                map.removeLayer(poiLayers[type]);
+            } else {
+                poiLayers[type].addTo(map);
+            }
+
+            // 更新按钮状态
+            updatePOIButtonStates();
+        }
+
+        // 更新 POI 按钮状态
+        function updatePOIButtonStates() {
+            if (!window.currentMap) return;
+
+            const buttons = document.querySelectorAll('.poi-button');
+            buttons.forEach(button => {
+                const type = button.getAttribute('data-type');
+                if (window.currentMap.hasLayer(poiLayers[type])) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // 获取 POI 图标
+        function getPOIIcon(type, tags) {
+            switch (type) {
+                case 'attractions':
+                    if (tags.tourism === 'museum') return 'museum-icon';
+                    if (tags.historic) return 'historic-icon';
+                    if (tags.leisure === 'park') return 'park-icon';
+                    return 'attraction-icon';
+                case 'restaurants':
+                    if (tags.amenity === 'cafe') return 'cafe-icon';
+                    if (tags.amenity === 'bar') return 'bar-icon';
+                    return 'restaurant-icon';
+                case 'transport':
+                    if (tags.railway === 'station') return 'train-icon';
+                    if (tags.amenity === 'bus_station') return 'bus-icon';
+                    if (tags.aeroway === 'aerodrome') return 'airport-icon';
+                    return 'transport-icon';
+                default:
+                    return 'default-icon';
+            }
+        }
+
+        // 获取 POI 默认名称
+        function getPOIDefaultName(type) {
+            switch (type) {
+                case 'attractions': return '未命名景点';
+                case 'restaurants': return '未命名餐厅';
+                case 'transport': return '交通站点';
+                default: return '未命名地点';
+            }
+        }
+
+        // 获取 POI 类型描述
+        function getPOIType(type, tags) {
+            switch (type) {
+                case 'attractions':
+                    if (tags.tourism === 'museum') return '博物馆';
+                    if (tags.historic) return '历史景点';
+                    if (tags.leisure === 'park') return '公园';
+                    return '旅游景点';
+                case 'restaurants':
+                    if (tags.amenity === 'cafe') return '咖啡馆';
+                    if (tags.amenity === 'bar') return '酒吧';
+                    return '餐厅';
+                case 'transport':
+                    if (tags.railway === 'station') return '火车站';
+                    if (tags.amenity === 'bus_station') return '公交站';
+                    if (tags.aeroway === 'aerodrome') return '机场';
+                    return '交通枢纽';
+                default:
+                    return '地点';
+            }
+        }
 
         // 添加浮动地球仪初始化函数
         function initFloatingGlobe() {
@@ -1779,85 +2157,1290 @@
                 am5.ResponsiveTheme.new(root)
             ]);
 
-            // Add click event to navigate to main globe
-            document.querySelector('.floating-globe').addEventListener('click', function() {
-                document.querySelector('#chartdiv').scrollIntoView({ 
-                    behavior: 'smooth' 
-                });
-            });
-
             // Cleanup on component unmount
             return () => {
                 root.dispose();
             };
         }
 
-        // 在页面加载完成后初始化浮动地球仪
+        // 国家人口数据
+        const populationData = {
+            "US": {
+                geodataFile: "am5geodata_usaLow",
+                data: [
+                { id: "US-NY", value: 9070000 },   // 纽约州
+{ id: "US-FL", value: 143000000 }, // 佛罗里达州
+{ id: "US-CA", value: 6270000 },   // 加利福尼亚州
+{ id: "US-NV", value: 2150000 },   // 内华达州
+{ id: "US-TX", value: 1870000 },   // 德克萨斯州
+{ id: "US-IL", value: 51960000 },  // 伊利诺伊州
+{ id: "US-HI", value: 10000000 },  // 夏威夷州
+{ id: "US-TN", value: 126000000 }, // 田纳西州
+{ id: "US-WI", value: 4000000 },   // 威斯康星州
+{ id: "US-MA", value: 1040000 },   // 马萨诸塞州
+{ id: "US-LA", value: 1000000 },   // 路易斯安那州
+{ id: "US-DC", value: 2000000 },   // 哥伦比亚特区
+{ id: "US-PA", value: 5000000 },   // 宾夕法尼亚州
+{ id: "US-AZ", value: 3000000 },   // 亚利桑那州
+{ id: "US-CO", value: 4000000 },   // 科罗拉多州
+{ id: "US-NC", value: 6000000 },   // 北卡罗来纳州
+{ id: "US-GA", value: 7000000 },   // 乔治亚州
+{ id: "US-OR", value: 2000000 },   // 俄勒冈州
+{ id: "US-WA", value: 3000000 },   // 华盛顿州
+{ id: "US-MI", value: 3500000 },   // 密歇根州
+{ id: "US-MD", value: 1500000 },   // 马里兰州
+{ id: "US-SC", value: 2500000 },   // 南卡罗来纳州
+{ id: "US-NJ", value: 2000000 },   // 新泽西州
+{ id: "US-UT", value: 1000000 },   // 犹他州
+{ id: "US-MN", value: 1500000 },   // 明尼苏达州
+{ id: "US-IN", value: 1000000 },   // 印第安纳州
+{ id: "US-OH", value: 2000000 },   // 俄亥俄州
+{ id: "US-MO", value: 1000000 },   // 密苏里州
+{ id: "US-KY", value: 800000 },    // 肯塔基州
+{ id: "US-AL", value: 700000 },    // 阿拉巴马州
+{ id: "US-OK", value: 600000 },    // 俄克拉荷马州
+{ id: "US-IA", value: 500000 },    // 爱荷华州
+{ id: "US-KS", value: 400000 },    // 堪萨斯州
+{ id: "US-NM", value: 300000 },    // 新墨西哥州
+{ id: "US-NH", value: 200000 },    // 新罕布什尔州
+{ id: "US-ME", value: 150000 },    // 缅因州
+{ id: "US-VT", value: 100000 },    // 佛蒙特州
+{ id: "US-RI", value: 90000 },     // 罗德岛州
+{ id: "US-DE", value: 80000 },     // 特拉华州
+{ id: "US-WV", value: 70000 },     // 西弗吉尼亚州
+{ id: "US-ND", value: 60000 },     // 北达科他州
+{ id: "US-SD", value: 50000 },     // 南达科他州
+{ id: "US-NE", value: 40000 },     // 内布拉斯加州
+{ id: "US-ID", value: 30000 },     // 爱达荷州
+{ id: "US-MT", value: 20000 },     // 蒙大拿州
+{ id: "US-WY", value: 10000 },     // 怀俄明州
+{ id: "US-AK", value: 5000 }       // 阿拉斯加州
+                ]
+            },
+            "CN": {
+                geodataFile: "am5geodata_chinaLow",
+                data: [
+                { id: "CN-HL", value: 282000000 },   // 黑龙江省
+{ id: "CN-HN", value: 700000000 },   // 湖南省（>7亿）
+{ id: "CN-HA", value: 1000000000 },  // 河南省（>10亿）
+{ id: "CN-HI", value: 97200000 },    // 海南省
+{ id: "CN-GD", value: 1000000000 },  // 广东省（>10亿）
+{ id: "CN-JS", value: 1080000000 },  // 江苏省
+{ id: "CN-SN", value: 910000000 },   // 陕西省（>9亿）
+{ id: "CN-YN", value: 1132000000 },  // 云南省（>11.32亿）
+{ id: "CN-GS", value: 450000000 },   // 甘肃省
+{ id: "CN-XJ", value: 300000000 },   // 新疆（>3亿）
+{ id: "CN-XZ", value: 64000000 },    // 西藏
+{ id: "CN-SD", value: 900000000 },   // 山东省（>9亿）
+{ id: "CN-LN", value: 650000000 },   // 辽宁省
+{ id: "CN-BJ", value: 280000000 },   // 北京市
+{ id: "CN-TJ", value: 261000000 },   // 天津市
+{ id: "CN-SX", value: 381000000 },   // 山西省
+{ id: "CN-JL", value: 377000000 },   // 吉林省（>3.77亿）
+{ id: "CN-NM", value: 273000000 },   // 内蒙古
+{ id: "CN-AH", value: 855000000 },   // 安徽省
+{ id: "CN-JX", value: 880000000 },   // 江西省（>8.8亿）
+{ id: "CN-FJ", value: 650000000 },   // 福建省（约值）
+{ id: "CN-GX", value: 769000000 },   // 广西
+{ id: "CN-CQ", value: 470000000 },   // 重庆市
+{ id: "CN-QH", value: 53000000 },    // 青海省
+{ id: "CN-NX", value: 80000000 },    // 宁夏
+{ id: "CN-HE", value: 928000000 },   // 河北省（9.28亿）
+{ id: "CN-HK", value: 45000000 },    // 香港（0.45亿）
+{ id: "CN-MO", value: 35000000 },    // 澳门（0.35亿）
+{ id: "CN-ZJ", value: 820000000 },   // 浙江省（约值）
+{ id: "CN-HB", value: 838000000 },   // 湖北省
+{ id: "CN-SH", value: 287000000 },   // 上海市
+{ id: "CN-GZ", value: 1243000000 },   // 贵州省（>12.43亿）
+{ id: "CN-SC", value: 680000000 }
+
+                ]
+            },
+            "JP": {
+                geodataFile: "am5geodata_japanLow",
+                data: [
+                { id: "JP-01", value: 6775200 },    // 北海道：6,775,200（外国人延べ宿泊者数）:contentReference[oaicite:0]{index=0}
+{ id: "JP-02", value: 0 },          // 青森県：数据缺失（未公开2024年全年值）
+{ id: "JP-03", value: 0 },          // 岩手県：数据缺失
+{ id: "JP-04", value: 518330 },     // 宮城県：518,330（外国人延べ宿泊者数）:contentReference[oaicite:1]{index=1}
+{ id: "JP-05", value: 0 },          // 秋田県：数据缺失
+{ id: "JP-06", value: 0 },          // 山形県：数据缺失
+{ id: "JP-07", value: 0 },          // 福島県：数据缺失
+{ id: "JP-08", value: 0 },          // 茨城県：数据缺失
+{ id: "JP-09", value: 452750 },     // 栃木県：452,750（外国人延べ宿泊者数）:contentReference[oaicite:2]{index=2}
+{ id: "JP-10", value: 0 },          // 群馬県：数据缺失
+{ id: "JP-11", value: 0 },          // 埼玉県：数据缺失
+{ id: "JP-12", value: 3241150 },    // 千葉県：3,241,150（外国人延べ宿泊者数）:contentReference[oaicite:3]{index=3}
+{ id: "JP-13", value: 42727680 },   // 東京都：42,727,680（外国人延べ宿泊者数）:contentReference[oaicite:4]{index=4}
+{ id: "JP-14", value: 2665810 },    // 神奈川県：2,665,810（外国人延べ宿泊者数）:contentReference[oaicite:5]{index=5}
+{ id: "JP-15", value: 348340 },     // 新潟県：348,340（外国人延べ宿泊者数）:contentReference[oaicite:6]{index=6}
+{ id: "JP-16", value: 0 },          // 富山県：数据缺失
+{ id: "JP-17", value: 1034530 },    // 石川県：1,034,530（外国人延べ宿泊者数）:contentReference[oaicite:7]{index=7}
+{ id: "JP-18", value: 0 },          // 福井県：数据缺失
+{ id: "JP-19", value: 1325830 },    // 山梨県：1,325,830（外国人延べ宿泊者数）:contentReference[oaicite:8]{index=8}
+{ id: "JP-20", value: 1417120 },    // 長野県：1,417,120（外国人延べ宿泊者数）:contentReference[oaicite:9]{index=9}
+{ id: "JP-21", value: 1108050 },    // 岐阜県：1,108,050（外国人延べ宿泊者数）:contentReference[oaicite:10]{index=10}
+{ id: "JP-22", value: 1027640 },    // 静岡県：1,027,640（外国人延べ宿泊者数）:contentReference[oaicite:11]{index=11}
+{ id: "JP-23", value: 1984390 },    // 愛知県：1,984,390（外国人延べ宿泊者数）:contentReference[oaicite:12]{index=12}
+{ id: "JP-24", value: 0 },          // 三重県：数据缺失
+{ id: "JP-25", value: 0 },          // 滋賀県：数据缺失
+{ id: "JP-26", value: 12119590 },   // 京都府：12,119,590（外国人延べ宿泊者数）:contentReference[oaicite:13]{index=13}
+{ id: "JP-27", value: 18480840 },   // 大阪府：18,480,840（外国人延べ宿泊者数）:contentReference[oaicite:14]{index=14}
+{ id: "JP-28", value: 1024830 },    // 兵庫県：1,024,830（外国人延べ宿泊者数）:contentReference[oaicite:15]{index=15}
+{ id: "JP-29", value: 0 },          // 奈良県：数据缺失
+{ id: "JP-30", value: 494300 },     // 和歌山県：494,300（外国人延べ宿泊者数）:contentReference[oaicite:16]{index=16}
+{ id: "JP-31", value: 0 },          // 鳥取県：数据缺失
+{ id: "JP-32", value: 0 },          // 島根県：数据缺失
+{ id: "JP-33", value: 0 },          // 岡山県：数据缺失
+{ id: "JP-34", value: 1292470 },    // 広島県：1,292,470（外国人延べ宿泊者数）:contentReference[oaicite:17]{index=17}
+{ id: "JP-35", value: 0 },          // 山口県：数据缺失
+{ id: "JP-36", value: 0 },          // 徳島県：数据缺失
+{ id: "JP-37", value: 444470 },     // 香川県：444,470（外国人延べ宿泊者数）:contentReference[oaicite:18]{index=18}
+{ id: "JP-38", value: 0 },          // 愛媛県：数据缺失
+{ id: "JP-39", value: 0 },          // 高知県：数据缺失
+{ id: "JP-40", value: 4737990 },    // 福岡県：4,737,990（外国人延べ宿泊者数）:contentReference[oaicite:19]{index=19}
+{ id: "JP-41", value: 0 },          // 佐賀県：数据缺失
+{ id: "JP-42", value: 461970 },     // 長崎県：461,970（外国人延べ宿泊者数）:contentReference[oaicite:20]{index=20}
+{ id: "JP-43", value: 961870 },     // 熊本県：961,870（外国人延べ宿泊者数）:contentReference[oaicite:21]{index=21}
+{ id: "JP-44", value: 1281000 },    // 大分県：1,281,000（外国人延べ宿泊者数）:contentReference[oaicite:22]{index=22}
+{ id: "JP-45", value: 0 },          // 宮崎県：数据缺失
+{ id: "JP-46", value: 337770 },     // 鹿児島県：337,770（外国人延べ宿泊者数）:contentReference[oaicite:23]{index=23}
+{ id: "JP-47", value: 4148110 }     // 沖縄県：4,148,110（外国人延べ宿泊者数）:contentReference[oaicite:24]{index=24}
+
+                ]
+            },
+            "AU": {
+                geodataFile: "am5geodata_australiaLow",
+                data: [
+                { id: "AU-NSW", value: 3800000 },   // 新南威尔士州
+{ id: "AU-VIC", value: 3200000 },   // 维多利亚州
+{ id: "AU-QLD", value: 2500000 },   // 昆士兰州
+{ id: "AU-WA", value: 1600000 },    // 西澳大利亚州
+{ id: "AU-SA", value: 900000 },     // 南澳大利亚州
+{ id: "AU-TAS", value: 400000 },    // 塔斯马尼亚州
+{ id: "AU-NT", value: 250000 },     // 北领地
+{ id: "AU-ACT", value: 200000 }     // 澳大利亚首都领地
+                ]
+            },
+            "RU": {
+                geodataFile: "am5geodata_russiaLow",
+                data: [
+                { id: "RU-MOW", value: 18000000 }, // 莫斯科市
+{ id: "RU-SPE", value: 12000000 }, // 圣彼得堡市
+{ id: "RU-KDA", value: 8000000 },  // 克拉斯诺达尔边疆区（包括索契）
+{ id: "RU-TA",  value: 4500000 },  // 鞑靼斯坦共和国（包括喀山）
+{ id: "RU-PRI", value: 3000000 },  // 滨海边疆区（包括符拉迪沃斯托克）
+{ id: "RU-KR",  value: 2500000 },  // 卡累利阿共和国
+{ id: "RU-KHM", value: 2000000 },  // 汉特-曼西自治区
+{ id: "RU-IRK", value: 1800000 },  // 伊尔库茨克州（包括贝加尔湖）
+{ id: "RU-ALT", value: 1500000 },  // 阿尔泰边疆区
+{ id: "RU-KEM", value: 1200000 },  // 克麦罗沃州
+{ id: "RU-NGR", value: 1000000 },  // 下诺夫哥罗德州
+{ id: "RU-YAN", value: 900000 },   // 亚马尔-涅涅茨自治区
+{ id: "RU-KHA", value: 800000 },   // 哈巴罗夫斯克边疆区
+{ id: "RU-SAK", value: 700000 },   // 萨哈林州
+{ id: "RU-KAM", value: 600000 },   // 堪察加边疆区
+{ id: "RU-ARK", value: 500000 },   // 阿尔汉格尔斯克州
+{ id: "RU-KGD", value: 400000 },   // 加里宁格勒州
+{ id: "RU-PSK", value: 300000 },   // 普斯科夫州
+{ id: "RU-NVS", value: 200000 },   // 新西伯利亚州
+{ id: "RU-TOM", value: 150000 }    // 托木斯克州
+                ]
+            }
+        };
+
+        // 创建热力图
+        function createHeatmap(countryCode) {
+            const countryData = populationData[countryCode];
+            if (!countryData) return;
+
+            // 创建根元素
+            const root = am5.Root.new("populationHeatmap");
+
+            // 设置主题
+            root.setThemes([
+                am5themes_Animated.new(root),
+                am5themes_Dark.new(root)
+            ]);
+
+            // 创建地图图表
+            const chart = root.container.children.push(
+                am5map.MapChart.new(root, {
+                    panX: "translateX",
+                    panY: "translateY",
+                    projection: am5map.geoMercator()
+                })
+            );
+
+            // 创建多边形系列
+            const polygonSeries = chart.series.push(
+                am5map.MapPolygonSeries.new(root, {
+                    geoJSON: window[countryData.geodataFile],
+                    valueField: "value",
+                    calculateAggregates: true
+                })
+            );
+
+            // 设置热力图规则
+            polygonSeries.set("heatRules", [{
+                target: polygonSeries.mapPolygons.template,
+                dataField: "value",
+                min: am5.color(0xFFCCCC),
+                max: am5.color(0x990000),
+                key: "fill"
+            }]);
+
+            // 设置多边形外观
+            polygonSeries.mapPolygons.template.setAll({
+                strokeWidth: 0.5,
+                stroke: root.interfaceColors.get("background"),
+                tooltipText: "{name}: {value}"
+            });
+
+            // 创建热力图图例
+            const heatLegend = chart.children.push(
+                am5.HeatLegend.new(root, {
+                    orientation: "vertical",
+                    startColor: am5.color(0xFFCCCC),
+                    endColor: am5.color(0x990000),
+                    startText: "人数较少",
+                    endText: "人数较多",
+                    stepCount: 5
+                })
+            );
+
+            heatLegend.startLabel.setAll({
+                fontSize: 12,
+                fill: heatLegend.get("startColor")
+            });
+
+            heatLegend.endLabel.setAll({
+                fontSize: 12,
+                fill: heatLegend.get("endColor")
+            });
+
+            // 设置数据
+            polygonSeries.data.setAll(countryData.data);
+
+            // 使地图适应容器
+            polygonSeries.events.on("datavalidated", function() {
+                chart.goHome();
+            });
+
+            // 添加缩放控件
+            chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
+
+            // 鼠标滚轮缩放
+            chart.set("wheelY", "zoom");
+
+            return () => {
+                root.dispose();
+            };
+        }
+
+        // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // ... existing initialization code ...
+            generateCountryList();
             
+            const params = new URLSearchParams(window.location.search);
+            const countryCode = params.get('id') || Object.keys(countries)[0];
+            generateCountryContent(countryCode);
+            updateTravelAdvice(countryCode);
+
             // 初始化浮动地球仪
             initFloatingGlobe();
+
+            // 初始化搜索功能
+            initializeSearch();
         });
 
-        // 添加留言相关函数
-        function showMessageModal() {
-            const modal = document.getElementById('messageModal');
-            modal.classList.add('active');
-            // 防止背景滚动
+        // 添加旅行建议相关函数
+        const travelAdvice = {
+            "US": {
+                general: "美国幅员辽阔，建议根据目的地规划行程。",
+                visa: "需要提前申请签证，建议预留充足办理时间。",
+                transport: "国内航班发达，也可选择铁路或自驾。",
+                accommodation: "酒店价格适中，建议提前预订。",
+                safety: "注意人身和财产安全，避免前往治安较差地区。",
+                culture: "文化多元开放，但要注意尊重当地习俗。",
+                weather: "气候差异大，建议查看目的地天气后再准备衣物。",
+                tips: [
+                    "建议购买旅行保险",
+                    "准备信用卡，美国大多数地方都可刷卡",
+                    "给小费是必要的社交礼仪",
+                    "提前了解目的地的紧急联系方式"
+                ]
+            },
+            "JP": {
+                general: "日本治安良好，交通便利，适合自由行。",
+                visa: "需要提前申请签证，准备好相关材料。",
+                transport: "公共交通发达，建议购买交通卡。",
+                accommodation: "住宿类型丰富，从胶囊旅馆到豪华酒店应有尽有。",
+                safety: "非常安全，但仍需注意保管随身物品。",
+                culture: "礼仪文化重要，建议了解基本礼仪。",
+                weather: "四季分明，建议查看天气预报选择适合的出行时间。",
+                tips: [
+                    "可以考虑购买JR Pass",
+                    "准备随身WiFi或电话卡",
+                    "学习几句简单的日语",
+                    "注意垃圾分类"
+                ]
+            },
+            "CN": {
+                general: "地域广阔，文化丰富，建议按区域规划行程。",
+                visa: "外国游客需要提前申请签证。",
+                transport: "高铁网络发达，也可选择飞机或自驾。",
+                accommodation: "住宿选择多样，价格合理。",
+                safety: "总体安全，但要注意人流密集区域的防盗。",
+                culture: "历史文化深厚，建议提前了解目的地文化特色。",
+                weather: "气候差异大，建议查看目的地天气。",
+                tips: [
+                    "建议下载常用支付软件",
+                    "准备交通导航APP",
+                    "学习基本的中文对话",
+                    "注意饮食卫生"
+                ]
+            },
+            "RU": {
+                general: "俄罗斯幅员辽阔，建议合理安排行程时间。",
+                visa: "需要提前申请签证，准备详细的行程计划。",
+                transport: "城市间距离较远，建议选择飞机或火车。",
+                accommodation: "主要城市住宿选择丰富。",
+                safety: "建议结伴同行，避免夜间单独出行。",
+                culture: "文化底蕴深厚，建议了解当地习俗。",
+                weather: "冬季寒冷，需要准备保暖衣物。",
+                tips: [
+                    "建议购买旅行保险",
+                    "准备现金和信用卡",
+                    "学习基本的俄语对话",
+                    "注意保管证件"
+                ]
+            },
+            "AU": {
+                general: "澳大利亚地域广阔，建议合理规划行程。",
+                visa: "需要提前申请签证。",
+                transport: "城市间距离较远，主要依靠飞机。",
+                accommodation: "住宿类型多样，价格适中偏上。",
+                safety: "较为安全，但要注意野生动物。",
+                culture: "文化开放包容，生活节奏轻松。",
+                weather: "季节与北半球相反，注意选择合适的出行时间。",
+                tips: [
+                    "准备防晒用品",
+                    "建议购买旅行保险",
+                    "准备英语交流能力",
+                    "注意左侧行驶规则"
+                ]
+            }
+        };
+
+        // 更新旅行建议内容
+        function updateTravelAdvice(countryCode) {
+            const advice = travelAdvice[countryCode];
+            if (!advice) return;
+
+            const content = document.getElementById('travelAdvice');
+            content.innerHTML = `
+                <h3>基本信息</h3>
+                <p>${advice.general}</p>
+                
+                <h3>签证信息</h3>
+                <p>${advice.visa}</p>
+                
+                <h3>交通建议</h3>
+                <p>${advice.transport}</p>
+                
+                <h3>住宿建议</h3>
+                <p>${advice.accommodation}</p>
+                
+                <h3>安全提示</h3>
+                <p>${advice.safety}</p>
+                
+                <h3>文化建议</h3>
+                <p>${advice.culture}</p>
+                
+                <h3>天气提醒</h3>
+                <p>${advice.weather}</p>
+                
+                <h3>实用贴士</h3>
+                <ul>
+                    ${advice.tips.map(tip => `<li>${tip}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // 全屏查看功能
+        function openFullscreen() {
+            const overlay = document.createElement('div');
+            overlay.className = 'fullscreen-overlay';
+            overlay.innerHTML = `
+                <div class="fullscreen-content">
+                    <button class="close-fullscreen" onclick="closeFullscreen(this)">×</button>
+                    ${document.getElementById('travelAdvice').innerHTML}
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
 
-        function closeMessageModal() {
-            const modal = document.getElementById('messageModal');
-            modal.classList.remove('active');
-            // 恢复背景滚动
+        function closeFullscreen(button) {
+            const overlay = button.closest('.fullscreen-overlay');
+            overlay.style.display = 'none';
             document.body.style.overflow = '';
-            // 重置表单
-            resetMessageForm();
-            }
-            
-        function resetMessageForm() {
-            document.getElementById('nameInput').value = '';
-            document.getElementById('contactInput').value = '';
-            document.getElementById('messageInput').value = '';
-            document.getElementById('messageForm').style.display = 'flex';
-            document.getElementById('messageSuccess').classList.remove('active');
+            overlay.remove();
         }
 
-        function submitMessage() {
-            const name = document.getElementById('nameInput').value.trim();
-            const contact = document.getElementById('contactInput').value.trim();
-            const message = document.getElementById('messageInput').value.trim();
+        // 移除导出PDF功能
+        function exportToPDF() {
+            const content = document.getElementById('travelAdvice');
+            const params = new URLSearchParams(window.location.search);
+            const countryCode = params.get('id');
+            const countryName = countries[countryCode]?.name || '旅行';
+            
+            // 创建一个临时容器
+            const tempContainer = document.createElement('div');
+            tempContainer.style.padding = '20px';
+            tempContainer.innerHTML = `
+                <h2 style="text-align: center; margin-bottom: 20px; color: black;">${countryName}旅行建议</h2>
+                ${content.innerHTML}
+            `;
+            
+            // 设置样式以确保PDF中的文本可见
+            const styles = `
+                <style>
+                    * {
+                        color: black !important;
+                        font-family: Arial, sans-serif;
+                    }
+                    h3 {
+                        margin-top: 15px;
+                        margin-bottom: 10px;
+                        font-size: 16px;
+                    }
+                    p {
+                        margin-bottom: 10px;
+                        font-size: 14px;
+                        line-height: 1.5;
+                    }
+                    ul {
+                        margin-left: 20px;
+                        margin-bottom: 10px;
+                    }
+                    li {
+                        margin-bottom: 5px;
+                        font-size: 14px;
+                        line-height: 1.5;
+                    }
+                </style>
+            `;
+            tempContainer.insertAdjacentHTML('afterbegin', styles);
+            
+            // 配置PDF导出选项
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `${countryName}旅行建议.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: true
+                },
+                jsPDF: { 
+                    unit: 'in', 
+                    format: 'a4', 
+                    orientation: 'portrait'
+                }
+            };
+            
+            // 执行PDF导出
+            html2pdf().set(opt).from(tempContainer).save().then(() => {
+                // 清理临时容器
+                tempContainer.remove();
+            });
+        }
 
-            if (!name || !message) {
-                alert('请填写称呼和留言内容');
+        // 添加博客文章数据
+        const blogPosts = {
+            "CN": [
+                {
+                    id: "cn1",
+                    title: "漫步西湖，寻觅杭州的诗意",
+                    date: "2023-10-15",
+                    content: "十月的杭州，正是一年中最美的时节。漫步在西湖边，看着湖面上泛起的涟漪，远处的雷峰塔倒影在湖中，宛如一幅水墨画。特别推荐傍晚时分来到苏堤，夕阳西下，晚霞映照在湖面上，美不胜收。",
+                    images: [
+                        { url: "images/西湖.jpg", alt: "西湖美景" },
+                        { url: "images/西湖1.jpg", alt: "西湖夕阳" }
+                    ],
+                    tags: ["杭州", "西湖", "文化之旅", "景点推荐"],
+                    likes: 156,
+                    comments: [
+                        {
+                            author: "旅行达人",
+                            date: "2023-10-16",
+                            content: "非常认同！十月的杭州确实很美，建议可以去体验下龙井村的茶文化。"
+                        }
+                    ]
+                },
+                {
+                    id: "cn2",
+                    title: "川渝出行体验",
+                    date: "2023-09-20",
+                    content: "四川的大熊猫着实可爱，重庆的山城风光也不甘落后。他俩美味的小吃也是让人赞不绝口。这俩都是旅游的好去处呀！",
+                    images: [
+                        { url: "images/大熊猫.jpg", alt: "可爱的大熊猫" },
+                        { url: "images/重庆.jpg", alt: "重庆山城风光" }
+                    ],
+                    tags: ["成都", "重庆", "美食", "攻略"],
+                    likes: 234,
+                    comments: [
+                        {
+                            author: "吃货小王",
+                            date: "2023-09-21",
+                            content: "马上收藏！下周去成都一定要都打卡一遍。"
+                        }
+                    ]
+                }
+            ],
+            "JP": [
+                {
+                    id: "jp1",
+                    title: "镰仓一日游攻略",
+                    date: "2023-11-25",
+                    content: "走在镰仓的海边，会让人感到十分惬意，蔚蓝的天空和湛蓝的海水，远处的富士山，近处的江之岛，构成了绝美的景观",
+                    images: [
+                        { url: "images/镰仓1.jpg", alt: "镰仓海边风光" },
+                        { url: "images/镰仓2.jpg", alt: "镰仓富士山景" }
+                    ],
+                    tags: ["镰仓", "富士山", "海边", "攻略"],
+                    likes: 189,
+                    comments: [
+                        {
+                            author: "摄影师小李",
+                            date: "2023-11-26",
+                            content: "富士山看上去真壮观呀"
+                        }
+                    ]
+                },
+                {
+                    id: "jp2",
+                    title: "东京漫步",
+                    date: "2023-08-10",
+                    content: "行走在东京这个庞然大物中，会让人感到十分渺小，但是东京的繁华和活力，会让人感到十分兴奋。东京铁塔、天空树、浅草寺，都是东京的标志性景点，值得一去。",
+                    images: [
+                        { url: "images/东京铁塔.jpg", alt: "东京铁塔夜景" },
+                        { url: "images/天空树.jpg", alt: "东京天空树" }
+                    ],
+                    tags: ["东京", "漫步", "繁华", "东京铁塔"],
+                    likes: 167,
+                    comments: [
+                        {
+                            author: "美食家",
+                            date: "2023-08-11",
+                            content: "我好想去秋叶原看看呀！"
+                        }
+                    ]
+                }
+            ],
+            "RU": [
+                {
+                    id: "ru1",
+                    title: "贝加尔湖的冬日幻想",
+                    date: "2024-01-15",
+                    content: "贝加尔湖是我一直想去的地方，尤其是冬季。想象着站在结冰的湖面上，透过厚厚的冰层看到下面的蓝色深渊，那种震撼感一定难以形容。特别期待能看到冰面上的气泡和裂纹形成的天然艺术品，还有在伊尔库茨克体验西伯利亚的冬日气息。",
+                    images: [
+                        { url: "images/贝加尔湖.jpg", alt: "贝加尔湖冬景" },
+                        { url: "images/蓝冰.jpg", alt: "蓝冰" }
+                    ],
+                    tags: ["贝加尔湖", "冬季旅行", "自然奇观", "俄罗斯"],
+                    likes: 89,
+                    comments: []
+                },
+                {
+                    id: "ru2",
+                    title: "圣彼得堡的艺术梦",
+                    date: "2024-01-16",
+                    content: "作为俄罗斯的文化之都，圣彼得堡的冬宫、艾尔米塔什博物馆都是必去的地方。最期待的是在涅瓦大街漫步，感受这座城市的文艺气息，特别是白昼夜时期，整夜的阳光洒在巴洛克建筑上的景象一定很美。",
+                    images: [
+                        { url: "images/冬宫.jpg", alt: "冬宫" },
+                        { url: "images/涅瓦大街.jpg", alt: "涅瓦大街" }
+                    ],
+                    tags: ["圣彼得堡", "艺术", "建筑", "白昼夜"],
+                    likes: 76,
+                    comments: []
+                }
+            ],
+            "US": [
+                {
+                    id: "us1",
+                    title: "黄石公园的地热奇观",
+                    date: "2024-01-17",
+                    content: "黄石是我的美国必去清单第一名！想要亲眼看看大棱镜温泉的绚丽色彩，还有老忠实间歇泉的喷发。最期待的是能在清晨看到野生动物在热气腾腾的温泉区活动的景象，据说这里的生态系统非常独特。",
+                    images: [
+                        { url: "images/大棱镜.jpg", alt: "大棱镜温泉" },
+                        { url: "images/老忠实.jpg", alt: "老忠实间歇泉" }
+                    ],
+                    tags: ["黄石公园", "自然奇观", "地热", "野生动物"],
+                    likes: 124,
+                    comments: []
+                },
+                {
+                    id: "us2",
+                    title: "优胜美地的巨岩奇景",
+                    date: "2024-01-18",
+                    content: "每次看到半圆顶的照片都会被震撼，优胜美地是我最想徒步的地方之一。想象着在山谷中仰望巨大的花岗岩峭壁，看优胜美地瀑布的壮观景象，甚至可能的话想尝试攀登一下El Capitan！",
+                    images: [
+                        { url: "images/半圆顶.jpg", alt: "半圆顶" },
+                    ],
+                    tags: ["优胜美地", "国家公园", "徒步", "攀岩"],
+                    likes: 98,
+                    comments: []
+                }
+            ],
+            "AU": [
+                {
+                    id: "au1",
+                    title: "大堡礁的海底世界",
+                    date: "2024-01-19",
+                    content: "大堡礁是我的潜水梦想地！想要在这片世界最大的珊瑚礁群中潜水，看五颜六色的珊瑚和热带鱼。特别想去利兹礁和哈迪礁，听说那里的珊瑚群特别漂亮，还可能看到海龟和魔鬼鱼。",
+                    images: [
+                        { url: "images/大堡礁.jpg", alt: "大堡礁珊瑚" },
+                        { url: "images/热带鱼群.jpg", alt: "热带鱼群" }
+                    ],
+                    tags: ["大堡礁", "潜水", "海洋生物", "自然奇观"],
+                    likes: 145,
+                    comments: []
+                },
+                {
+                    id: "au2",
+                    title: "乌鲁鲁的红土日落",
+                    date: "2024-01-20",
+                    content: "乌鲁鲁是澳大利亚最神秘的地标之一，特别想在日落时分看它变换颜色的奇妙景象。据说从不同角度和不同时间看，这块巨大的单体岩石会呈现出不同的红色色调，而且周围的原住民文化也十分有趣。",
+                    images: [
+                        { url: "images/乌鲁鲁日落.jpg", alt: "乌鲁鲁日落" },
+                        { url: "images/乌鲁鲁全景.jpg", alt: "乌鲁鲁全景" }
+                    ],
+                    tags: ["乌鲁鲁", "内陆", "原住民文化", "日落"],
+                    likes: 167,
+                    comments: []
+                }
+            ]
+        };
+
+        // 获取博客文章HTML
+        function getBlogPosts(countryCode) {
+            const posts = blogPosts[countryCode];
+            if (!posts) return '';
+
+            return posts.map(post => `
+                <div class="blog-post" data-post-id="${post.id}">
+                    <div class="post-header">
+                        <h3 class="post-title">${post.title}</h3>
+                        <span class="post-date">${post.date}</span>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.images ? `
+                        <div class="post-images">
+                            ${post.images.map(img => `
+                                <div class="post-image" onclick="openImageModal('${img.url}')">
+                                    <img src="${img.url}" alt="${img.alt}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="post-tags">
+                        ${post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-button like-button" onclick="toggleLike('${post.id}')">
+                            <span class="button-icon">❤️</span>
+                            <span class="action-count">${post.likes}</span>
+                        </button>
+                        <button class="action-button comment-button" onclick="toggleComments('${post.id}')">
+                            <span class="button-icon">💬</span>
+                            <span class="action-count">${post.comments.length}</span>
+                        </button>
+                    </div>
+                    <div class="post-comments" id="comments-${post.id}">
+                        ${post.comments.map(comment => `
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <span class="comment-author">${comment.author}</span>
+                                    <span class="comment-date">${comment.date}</span>
+                                </div>
+                                <div class="comment-content">${comment.content}</div>
+                            </div>
+                        `).join('')}
+                        <div class="new-comment">
+                            <input type="text" placeholder="写下你的评论..." id="comment-input-${post.id}">
+                            <button onclick="addComment('${post.id}')">发表评论</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 点赞功能
+        function toggleLike(postId) {
+            const button = document.querySelector(`[data-post-id="${postId}"] .like-button .action-count`);
+            const currentLikes = parseInt(button.textContent);
+            button.textContent = currentLikes + 1;
+        }
+
+        // 评论显示切换
+        function toggleComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            commentsSection.classList.toggle('active');
+        }
+
+        // 添加评论
+        function addComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const content = input.value.trim();
+            if (!content) return;
+
+            const commentsContainer = document.getElementById(`comments-${postId}`);
+            const newComment = document.createElement('div');
+            newComment.className = 'comment';
+            newComment.innerHTML = `
+                <div class="comment-header">
+                    <span class="comment-author">访客</span>
+                    <span class="comment-date">${new Date().toLocaleDateString()}</span>
+                </div>
+                <div class="comment-content">${content}</div>
+            `;
+
+            // 插入新评论到评论列表的开头
+            const newCommentForm = commentsContainer.querySelector('.new-comment');
+            commentsContainer.insertBefore(newComment, newCommentForm);
+
+            // 更新评论计数
+            const commentCount = document.querySelector(`[data-post-id="${postId}"] .comment-button .action-count`);
+            commentCount.textContent = parseInt(commentCount.textContent) + 1;
+
+            // 清空输入框
+            input.value = '';
+        }
+
+        // 添加图片预览相关函数
+        function openImageModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageUrl;
+            modal.classList.add('active');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // 添加帖子详情相关函数
+        function openPostModal(postId) {
+            const post = findPostById(postId);
+            if (!post) return;
+
+            const modal = document.getElementById('postModal');
+            const modalContent = document.getElementById('postModalContent');
+
+            modalContent.innerHTML = `
+                <div class="post-header">
+                    <h2 class="post-title">${post.title}</h2>
+                    <span class="post-date">${post.date}</span>
+                </div>
+                <div class="post-content">${post.content}</div>
+                ${post.images ? `
+                    <div class="post-images">
+                        ${post.images.map(img => `
+                            <div class="post-image" onclick="openImageModal('${img.url}')">
+                                <img src="${img.url}" alt="${img.alt}">
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                <div class="post-meta">
+                    <div class="post-tags">
+                        ${post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-button like-button" onclick="toggleLike('${post.id}')">
+                            <span class="button-icon">❤️</span>
+                            <span class="action-count">${post.likes}</span>
+                        </button>
+                        <button class="action-button comment-button">
+                            <span class="button-icon">💬</span>
+                            <span class="action-count">${post.comments.length}</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="comments-section">
+                    <h3 class="comments-header">评论 (${post.comments.length})</h3>
+                    ${post.comments.map(comment => `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">${comment.author}</span>
+                                <span class="comment-date">${comment.date}</span>
+                            </div>
+                            <div class="comment-content">${comment.content}</div>
+                        </div>
+                    `).join('')}
+                    <div class="new-comment">
+                        <input type="text" placeholder="写下你的评论..." id="modal-comment-input-${post.id}">
+                        <button onclick="addComment('${post.id}', true)">发表评论</button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePostModal() {
+            const modal = document.getElementById('postModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function findPostById(postId) {
+            for (const countryPosts of Object.values(blogPosts)) {
+                const post = countryPosts.find(p => p.id === postId);
+                if (post) return post;
+            }
+            return null;
+        }
+
+        // 修改获取博客文章HTML的函数，添加点击事件
+        function getBlogPosts(countryCode) {
+            const posts = blogPosts[countryCode];
+            if (!posts) return '';
+
+            return posts.map(post => `
+                <div class="blog-post" data-post-id="${post.id}" onclick="openPostModal('${post.id}')">
+                    <div class="post-header">
+                        <h3 class="post-title">${post.title}</h3>
+                        <span class="post-date">${post.date}</span>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.images ? `
+                        <div class="post-images" onclick="event.stopPropagation()">
+                            ${post.images.map(img => `
+                                <div class="post-image" onclick="openImageModal('${img.url}')">
+                                    <img src="${img.url}" alt="${img.alt}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="post-tags">
+                        ${post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="post-actions" onclick="event.stopPropagation()">
+                        <button class="action-button like-button" onclick="toggleLike('${post.id}')">
+                            <span class="button-icon">❤️</span>
+                            <span class="action-count">${post.likes}</span>
+                        </button>
+                        <button class="action-button comment-button" onclick="toggleComments('${post.id}')">
+                            <span class="button-icon">💬</span>
+                            <span class="action-count">${post.comments.length}</span>
+                        </button>
+                    </div>
+                    <div class="post-comments" id="comments-${post.id}" onclick="event.stopPropagation()">
+                        ${post.comments.map(comment => `
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <span class="comment-author">${comment.author}</span>
+                                    <span class="comment-date">${comment.date}</span>
+                                </div>
+                                <div class="comment-content">${comment.content}</div>
+                            </div>
+                        `).join('')}
+                        <div class="new-comment">
+                            <input type="text" placeholder="写下你的评论..." id="comment-input-${post.id}">
+                            <button onclick="addComment('${post.id}')">发表评论</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 修改添加评论函数以支持模态框
+        function addComment(postId, isModal = false) {
+            const inputId = isModal ? `modal-comment-input-${postId}` : `comment-input-${postId}`;
+            const input = document.getElementById(inputId);
+            const content = input.value.trim();
+            if (!content) return;
+
+            const comment = {
+                author: "访客",
+                date: new Date().toLocaleDateString(),
+                content: content
+            };
+
+            // 更新数据
+            const post = findPostById(postId);
+            if (post) {
+                post.comments.unshift(comment);
+            }
+
+            // 更新所有评论显示
+            updateCommentsDisplay(postId, comment);
+
+            // 清空输入框
+            input.value = '';
+        }
+
+        function updateCommentsDisplay(postId, newComment) {
+            // 更新帖子列表中的评论
+            const commentsContainer = document.getElementById(`comments-${postId}`);
+            if (commentsContainer) {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <span class="comment-author">${newComment.author}</span>
+                        <span class="comment-date">${newComment.date}</span>
+                    </div>
+                    <div class="comment-content">${newComment.content}</div>
+                `;
+                const newCommentForm = commentsContainer.querySelector('.new-comment');
+                commentsContainer.insertBefore(commentElement, newCommentForm);
+            }
+
+            // 更新模态框中的评论
+            const modalContent = document.getElementById('postModalContent');
+            if (modalContent) {
+                const modalCommentsSection = modalContent.querySelector('.comments-section');
+                if (modalCommentsSection) {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                        <div class="comment-header">
+                            <span class="comment-author">${newComment.author}</span>
+                            <span class="comment-date">${newComment.date}</span>
+                        </div>
+                        <div class="comment-content">${newComment.content}</div>
+                    `;
+                    const newCommentForm = modalCommentsSection.querySelector('.new-comment');
+                    modalCommentsSection.insertBefore(commentElement, newCommentForm);
+                }
+            }
+
+            // 更新评论计数
+            const commentCounts = document.querySelectorAll(`[data-post-id="${postId}"] .comment-button .action-count`);
+            const post = findPostById(postId);
+            commentCounts.forEach(count => {
+                count.textContent = post.comments.length;
+            });
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('postModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePostModal();
+            }
+        });
+
+        // 添加搜索相关函数
+        let activeFilter = 'all';
+        let searchTimeout;
+        let currentSuggestions = [];
+
+        function initializeSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            const filterButtons = document.querySelectorAll('.filter-button');
+
+            // 输入事件处理
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                const searchTerm = e.target.value.trim().toLowerCase();
+                
+                if (searchTerm.length >= 1) {
+                    searchTimeout = setTimeout(() => {
+                        generateSearchSuggestions(searchTerm);
+                    }, 200);
+                } else {
+                    searchSuggestions.classList.remove('active');
+                }
+            });
+
+            // 失去焦点时隐藏建议
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    searchSuggestions.classList.remove('active');
+                }
+            });
+
+            // 过滤器点击事件
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    activeFilter = this.dataset.filter;
+                    const searchTerm = searchInput.value.trim().toLowerCase();
+                    if (searchTerm) {
+                        generateSearchSuggestions(searchTerm);
+                    }
+                });
+            });
+
+            // 键盘导航
+            searchInput.addEventListener('keydown', function(e) {
+                const suggestions = document.querySelectorAll('.suggestion-item');
+                const currentIndex = Array.from(suggestions).findIndex(item => item.classList.contains('active'));
+
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        navigateSuggestions(currentIndex, 1, suggestions);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        navigateSuggestions(currentIndex, -1, suggestions);
+                        break;
+                    case 'Enter':
+                        const activeSuggestion = document.querySelector('.suggestion-item.active');
+                        if (activeSuggestion) {
+                            e.preventDefault();
+                            handleSuggestionSelect(activeSuggestion.dataset.postId);
+                        }
+                        break;
+                }
+            });
+        }
+
+        function navigateSuggestions(currentIndex, direction, suggestions) {
+            if (!suggestions.length) return;
+
+            suggestions.forEach(item => item.classList.remove('active'));
+            let newIndex;
+
+            if (currentIndex === -1) {
+                newIndex = direction > 0 ? 0 : suggestions.length - 1;
+            } else {
+                newIndex = (currentIndex + direction + suggestions.length) % suggestions.length;
+            }
+
+            suggestions[newIndex].classList.add('active');
+            suggestions[newIndex].scrollIntoView({ block: 'nearest' });
+        }
+
+        function generateSearchSuggestions(searchTerm) {
+            const params = new URLSearchParams(window.location.search);
+            const countryCode = params.get('id');
+            const posts = blogPosts[countryCode] || [];
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            
+            currentSuggestions = [];
+
+            posts.forEach(post => {
+                const matchTitle = post.title.toLowerCase().includes(searchTerm);
+                const matchContent = post.content.toLowerCase().includes(searchTerm);
+                const matchTags = post.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+                if ((activeFilter === 'all' && (matchTitle || matchContent || matchTags)) ||
+                    (activeFilter === 'title' && matchTitle) ||
+                    (activeFilter === 'content' && matchContent) ||
+                    (activeFilter === 'tags' && matchTags)) {
+
+                    let matchType = matchTitle ? 'title' : matchContent ? 'content' : 'tags';
+                    let matchText = '';
+                    let matchIcon = '';
+
+                    switch(matchType) {
+                        case 'title':
+                            matchText = post.title;
+                            matchIcon = '📝';
+                            break;
+                        case 'content':
+                            matchText = post.content.substring(0, 50) + '...';
+                            matchIcon = '📄';
+                            break;
+                        case 'tags':
+                            matchText = post.tags.join(', ');
+                            matchIcon = '🏷️';
+                            break;
+                    }
+
+                    currentSuggestions.push({
+                        id: post.id,
+                        title: post.title,
+                        matchType,
+                        matchText,
+                        matchIcon,
+                        date: post.date
+                    });
+                }
+            });
+
+            displaySearchSuggestions(currentSuggestions, searchTerm);
+        }
+
+        function displaySearchSuggestions(suggestions, searchTerm) {
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            
+            if (suggestions.length === 0) {
+                searchSuggestions.classList.remove('active');
                 return;
             }
 
-            // 这里可以添加发送留言到服务器的代码
-            // 模拟发送成功
-            document.getElementById('messageForm').style.display = 'none';
-            document.getElementById('messageSuccess').classList.add('active');
+            searchSuggestions.innerHTML = suggestions.map(suggestion => `
+                <div class="suggestion-item" data-post-id="${suggestion.id}">
+                    <div class="suggestion-icon">${suggestion.matchIcon}</div>
+                    <div class="suggestion-content">
+                        <div class="suggestion-title">${highlightText(suggestion.title, searchTerm)}</div>
+                        <div class="suggestion-info">
+                            <span class="suggestion-match">${highlightText(suggestion.matchText, searchTerm)}</span>
+                            <span class="suggestion-type">${getMatchTypeText(suggestion.matchType)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
 
-            // 3秒后关闭模态框
-            setTimeout(() => {
-                closeMessageModal();
-            }, 3000);
+            // 添加点击事件
+            const suggestionItems = searchSuggestions.querySelectorAll('.suggestion-item');
+            suggestionItems.forEach(item => {
+                item.addEventListener('click', () => handleSuggestionSelect(item.dataset.postId));
+            });
+
+            searchSuggestions.classList.add('active');
         }
 
-        // 更新点击事件
-        document.querySelector('.floating-globe').addEventListener('click', function(e) {
-            e.preventDefault();
-            showMessageModal();
-        });
-
-        // 点击遮罩层关闭模态框
-        document.getElementById('messageModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeMessageModal();
+        function getMatchTypeText(matchType) {
+            switch(matchType) {
+                case 'title': return '标题匹配';
+                case 'content': return '内容匹配';
+                case 'tags': return '标签匹配';
+                default: return '';
             }
+        }
+
+        function handleSuggestionSelect(postId) {
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            const searchInput = document.getElementById('searchInput');
+            
+            // 隐藏建议框
+            searchSuggestions.classList.remove('active');
+            searchInput.value = '';
+
+            // 打开帖子详情
+            openPostModal(postId);
+        }
+
+        function performSearch(searchTerm) {
+            const blogPosts = document.getElementById('blogPosts');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (!searchTerm) {
+                searchResults.style.display = 'none';
+                blogPosts.style.display = 'block';
+                return;
+            }
+
+            const results = [];
+            const params = new URLSearchParams(window.location.search);
+            const countryCode = params.get('id');
+            const posts = blogPosts[countryCode] || [];
+
+            posts.forEach(post => {
+                const matchTitle = post.title.toLowerCase().includes(searchTerm);
+                const matchContent = post.content.toLowerCase().includes(searchTerm);
+                const matchTags = post.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+                if ((activeFilter === 'all' && (matchTitle || matchContent || matchTags)) ||
+                    (activeFilter === 'title' && matchTitle) ||
+                    (activeFilter === 'content' && matchContent) ||
+                    (activeFilter === 'tags' && matchTags)) {
+                    results.push({
+                        post,
+                        matchType: matchTitle ? 'title' : matchContent ? 'content' : 'tags'
+                    });
+                }
+            });
+
+            displaySearchResults(results, searchTerm);
+        }
+
+        function displaySearchResults(results, searchTerm) {
+            const blogPosts = document.getElementById('blogPosts');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (results.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        没有找到匹配 "${searchTerm}" 的结果
+                    </div>
+                `;
+            } else {
+                searchResults.innerHTML = `
+                    <div class="search-result-stats">
+                        找到 ${results.length} 条相关结果
+                    </div>
+                    ${results.map(({post}) => `
+                        <div class="blog-post" data-post-id="${post.id}" onclick="openPostModal('${post.id}')">
+                            <div class="post-header">
+                                <h3 class="post-title">${highlightText(post.title, searchTerm)}</h3>
+                                <span class="post-date">${post.date}</span>
+                            </div>
+                            <div class="post-content">${highlightText(post.content, searchTerm)}</div>
+                            ${post.images ? `
+                                <div class="post-images" onclick="event.stopPropagation()">
+                                    ${post.images.map(img => `
+                                        <div class="post-image" onclick="openImageModal('${img.url}')">
+                                            <img src="${img.url}" alt="${img.alt}">
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            <div class="post-tags">
+                                ${post.tags.map(tag => `
+                                    <span class="post-tag">${highlightText(tag, searchTerm)}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+
+            searchResults.style.display = 'block';
+            blogPosts.style.display = 'none';
+        }
+
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return text;
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // 在页面加载时初始化搜索功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing code ...
+            initializeSearch();
         });
     </script>
+
+    <!-- 移除 html2pdf 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- 添加图片预览模态框 -->
+    <div class="image-modal" id="imageModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeImageModal()">×</button>
+            <img id="modalImage" src="" alt="预览图片">
+        </div>
+    </div>
+
+    <!-- 在 body 标签末尾添加帖子详情模态框 -->
+    <div class="post-modal" id="postModal">
+        <div class="post-modal-content">
+            <button class="close-modal" onclick="closePostModal()">×</button>
+            <div id="postModalContent"></div>
+        </div>
+    </div>
 </body>
-</html>
+</html> 
