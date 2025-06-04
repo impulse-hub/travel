@@ -1,0 +1,16 @@
+{
+  "name": "pw",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@amcharts/amcharts5": "^5.12.3",
+    "@amcharts/amcharts5-geodata": "^5.1.4"
+  }
+}
