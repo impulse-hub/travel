@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QKH的旅行幻想</title>
+    <!-- 引入 amCharts 资源 -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Dark.js"></script>
+    <!-- 引入Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+    <!-- 引入主题切换按钮修复样式 -->
+    <link rel="stylesheet" href="theme-fix.css">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e40af;
+            --text-color: #f8fafc;
+            --background-color: #0f172a;
+            --accent-color: #1e293b;
+            --visited-color: #4ade80;
+            --to-visit-color: #fbbf24;
+            --hover-color: #60a5fa;
+            --card-bg: #1e293b;
+            --section-spacing: 6rem;
+            --container-width: 1200px;
+            --header-bg: rgba(15, 23, 42, 0.8);
+            --footer-bg: var(--background-color);
+            --transition: 0.3s ease;
+            --globe-background: #0c1b33;
+            --globe-ocean-color: #1e3a8a;
+            --globe-countries-color: #334155;
+            --globe-grid-color: #ffffff;
+            --globe-shadow-color: rgba(59, 130, 246, 0.18);
+            --card-shadow-color: rgba(0, 0, 0, 0.2);
+            --card-background: rgba(30, 41, 59, 0.8);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --nav-background: rgba(30, 41, 59, 0.7);
+        }
+
+        /* 主题切换过渡 */
+        * {
+            transition: background-color var(--transition), 
+                       color var(--transition),
+                       border-color var(--transition),
+                       box-shadow var(--transition);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            background-image: linear-gradient(to bottom, var(--background-color), var(--accent-color));
+            min-height: 100vh;
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 2rem;
+            width: 100%;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-links a:hover {
+            color: var(--hover-color);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 当前页面激活状态 */
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-links a.active::after {
+            width: 100%;
+            background-color: var(--primary-color);
+        }
+
+        .hero {
+            padding: 12rem 0 8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 650px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        .map-section {
+            padding: 2rem 0 var(--section-spacing);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, var(--background-color));
+        }
+
+        /* 粒子背景 */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: particleFloat linear infinite;
+        }
+
+        /* 添加浮动地球仪样式 */
+        .floating-globe {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-globe:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        #floatingGlobeDiv {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .floating-globe {
+                width: 100px;
+                height: 100px;
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(-200px) translateX(100px); opacity: 0; }
+        }
+
+        /* 添加地球光晕效果 */
+        .map-glow {
+            position: absolute;
+            top: -5%;
+            left: -5%;
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, var(--globe-background) 30%, transparent 70%);
+            z-index: -1;
+            opacity: 0.4;
+            filter: blur(20px);
+            animation: glowPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.05); }
+            100% { opacity: 0.2; transform: scale(1); }
+        }
+
+        /* 地球容器动画效果 */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 60px var(--globe-shadow-color); }
+            50% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 100px var(--globe-shadow-color); }
+            100% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 60px var(--globe-shadow-color); }
+        }
+
+        .map-container {
+            width: 800px;
+            height: 800px;
+            margin: 2rem auto;
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 
+                        0 0 100px var(--globe-shadow-color);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            animation: float 6s ease-in-out infinite, pulse-glow 4s ease-in-out infinite;
+        }
+
+        /* 地球轨道效果 */
+        .map-container::before,
+        .map-container::after {
+            content: '';
+            position: absolute;
+            width: 110%;
+            height: 110%;
+            top: -5%;
+            left: -5%;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: -1;
+            opacity: 0;
+            animation: orbit 20s linear infinite;
+            pointer-events: none;
+        }
+
+        .map-container::after {
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            border: 2px dotted rgba(255, 255, 255, 0.15);
+            animation-duration: 30s;
+            animation-direction: reverse;
+        }
+
+        @keyframes orbit {
+            0% { transform: rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: rotate(360deg); opacity: 0; }
+        }
+
+        /* 更新悬停效果，增加额外动效 */
+        .map-container:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                        0 0 120px var(--globe-shadow-color);
+            animation-play-state: paused; /* 悬停时暂停动画 */
+        }
+
+        /* 动态背景开关 */
+        :root.light-mode .map-container::before,
+        :root.light-mode .map-container::after {
+            border-color: rgba(59, 130, 246, 0.1);
+        }
+
+        #chartdiv {
+            width: 100%;
+            height: 100%;
+            background-color: var(--globe-background);
+        }
+
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 3rem auto 0;
+            background-color: var(--nav-background);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 1.2rem 3rem;
+            border-radius: 3rem;
+            display: inline-flex;
+            box-shadow: 0 8px 20px var(--card-shadow-color);
+            border: 1px solid var(--card-border);
+            transition: transform 0.3s ease;
+        }
+
+        .map-legend:hover {
+            transform: translateY(-5px);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .visited-color {
+            background-color: var(--visited-color);
+        }
+
+        .to-visit-color {
+            background-color: var(--to-visit-color);
+        }
+
+        .features {
+            padding: var(--section-spacing) 0;
+            background-color: var(--accent-color);
+            position: relative;
+        }
+
+        .features::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent, var(--accent-color));
+        }
+
+        .section-title-container {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .section-title-container::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        .features h2 {
+            font-size: 2.8rem;
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background-color: var(--card-background);
+            padding: 2.5rem;
+            border-radius: 1.2rem;
+            box-shadow: 0 8px 30px var(--card-shadow-color);
+            transition: all 0.3s ease;
+            border: 1px solid var(--card-border);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.03), rgba(59, 130, 246, 0.03));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px var(--card-shadow-color);
+            border-color: var(--card-border);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.2rem;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .feature-card h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+            border-radius: 2px;
+        }
+
+        .feature-card p {
+            color: #cbd5e1;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        footer {
+            background-color: var(--footer-bg);
+            color: #94a3b8;
+            padding: 4rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin: 1rem 0;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            display: none !important;
+        }
+
+        @media (max-width: 1024px) {
+            :root {
+                --section-spacing: 5rem;
+            }
+            
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+            
+            .map-container {
+                width: 700px;
+                height: 700px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --section-spacing: 4rem;
+            }
+            
+            .hero {
+                padding: 10rem 0 5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .map-container {
+                width: 90vw;
+                height: 90vw;
+                max-width: 600px;
+                max-height: 600px;
+            }
+            
+            .map-legend {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 1rem 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .map-container {
+                margin: 1rem auto;
+            }
+            
+            .container {
+                padding: 0 1.5rem;
+            }
+            
+            .feature-card {
+                padding: 1.8rem;
+            }
+        }
+
+        /* 删除地图控制提示样式 */
+        .map-controls {
+            display: none;
+        }
+
+        /* 地图部分容器样式 */
+        .map-section-content {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* 交互提示栏样式 */
+        .tips-panel {
+            position: relative;
+            width: 300px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 1s;
+        }
+
+        .tips-panel h3 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tip-item:hover {
+            background: rgba(59, 130, 246, 0.15);
+            transform: translateX(5px);
+        }
+
+        .tip-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            flex-shrink: 0;
+        }
+
+        .tip-content {
+            font-size: 0.95rem;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 1200px) {
+            .map-section-content {
+                flex-direction: column;
+            }
+
+            .tips-panel {
+                width: 100%;
+                max-width: 600px;
+                animation: fadeInUp 0.8s ease forwards;
+                animation-delay: 1s;
+            }
+
+            .tips-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+
+        @media (max-width: 768px) {
+            .map-section-content {
+                padding: 0 1rem;
+            }
+
+            .tips-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 模态对话框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-container {
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            background: var(--card-background);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-family: 'Noto Serif SC', serif;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+        }
+
+        .modal-close:hover {
+            color: var(--primary-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .message-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-submit {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .form-submit:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .form-submit:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message-success {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .message-success.active {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            color: #4ade80;
+            margin-bottom: 1rem;
+        }
+
+        .success-title {
+            font-size: 1.5rem;
+            color: #4ade80;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-text {
+            color: #94a3b8;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* 浮动地球仪提示样式 */
+        .floating-globe-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            flex-direction: row-reverse;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .floating-globe-tooltip {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            max-width: 200px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            margin-right: 0.5rem;
+        }
+
+        .floating-globe-container:hover .floating-globe-tooltip {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tooltip-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tooltip-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tooltip-icon {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .floating-globe-container {
+                flex-direction: column-reverse;
+                gap: 0.5rem;
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .floating-globe-tooltip {
+                transform: translateY(-10px);
+                margin-right: 0;
+                font-size: 0.8rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .floating-globe-container:hover .floating-globe-tooltip {
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🌍</span>
+                <span>QKH的旅行幻想时刻</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="nav-links">
+                    <a href="index.html" class="active">主页</a>
+                    <a href="country_details.html?about=true">详情</a>
+                    <a href="travel_guide.html?about=true">旅行攻略</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>现在是——幻想时间</h1>
+                <p>该网站记录了博主曾经去过的一些地方，和未来想要去到的地方。</p>
+            </div>
+        </section>
+
+        <section class="map-section">
+            <div class="container" style="text-align: center;">
+                <!-- 粒子背景容器 -->
+                <div class="particles-container" id="particles-container"></div>
+                
+                <div class="map-section-content">
+                <div class="map-container">
+                    <!-- 地球光晕效果 -->
+                    <div class="map-glow"></div>
+                    <div id="chartdiv"></div>
+                </div>
+
+                    <!-- 交互提示栏 -->
+                    <div class="tips-panel">
+                        <h3>
+                            <span class="tip-icon">💡</span>
+                            交互指南
+                        </h3>
+                        <div class="tips-list">
+                            <div class="tip-item">
+                                <span class="tip-icon">🌍</span>
+                                <div class="tip-content">
+                                    拖拽地球可以自由旋转查看，松开后会继续自动旋转
+                                </div>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-icon">🎯</span>
+                                <div class="tip-content">
+                                    点击标注的国家可以查看详细信息和旅行计划
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-color visited-color"></div>
+                        <span>已去过</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color to-visit-color"></div>
+                        <span>幻想前往</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>探索世界，记录足迹</p>
+                <div class="footer-links">
+                    <a href="#">主页</a>
+                    <a href="country_details.html?about=true">详情</a>
+                    <a href="#">联系我</a>
+                </div>
+                <p>&copy; 2024 我的旅行地图. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 修改浮动地球仪容器结构 -->
+    <div class="floating-globe-container">
+        <div class="floating-globe-tooltip">
+            <div class="tooltip-list">
+                <div class="tooltip-item">
+                    <span class="tooltip-icon">🔄</span>
+                    <span>拖拽交互</span>
+                </div>
+                <div class="tooltip-item">
+                    <span class="tooltip-icon">💬</span>
+                    <span>点击留言</span>
+                </div>
+            </div>
+        </div>
+        <div class="floating-globe">
+            <div id="floatingGlobeDiv"></div>
+        </div>
+    </div>
+
+    <!-- 添加模态对话框 -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span class="tip-icon">💌</span>
+                    给网站开发者留言
+                </h2>
+                <button class="modal-close" onclick="closeMessageModal()">×</button>
+            </div>
+            <div class="message-form" id="messageForm">
+                <div class="form-group">
+                    <label class="form-label">你的称呼</label>
+                    <input type="text" class="form-input" id="nameInput" placeholder="请输入你的名字">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">联系方式（选填）</label>
+                    <input type="text" class="form-input" id="contactInput" placeholder="邮箱或其他联系方式">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">留言内容</label>
+                    <textarea class="form-input" id="messageInput" placeholder="有什么想对开发者说的..."></textarea>
+                </div>
+                <button class="form-submit" onclick="submitMessage()">
+                    <span class="tip-icon">📨</span>
+                    发送留言
+                </button>
+            </div>
+            <div class="message-success" id="messageSuccess">
+                <div class="success-icon">✨</div>
+                <h3 class="success-title">留言发送成功！</h3>
+                <p class="success-text">感谢你的留言，我会认真阅读每一条反馈。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 已去过的国家（使用ISO 3166-1 alpha-2国家代码）
+        const visitedCountries = ["CN", "JP"];
+        
+        // 幻想前往的国家
+        const toVisitCountries = ["US", "RU", "AU"];
+        
+        // 国家中文名称映射
+        const countryNames = {
+            "CN": "中国",
+            "JP": "日本",
+            "US": "美国", 
+            "RU": "俄罗斯",
+            "AU": "澳大利亚"
+        };
+        
+        // 等待DOM加载完成
+        document.addEventListener("DOMContentLoaded", function() {
+            // 初始化amCharts
+            am5.ready(function() {
+                // 创建根元素
+                const root = am5.Root.new("chartdiv");
+                
+                // 保存根元素到全局
+                window.chartRoot = root;
+                
+                // 设置暗色主题
+                    root.setThemes([am5themes_Animated.new(root), am5themes_Dark.new(root)]);
+                
+                // 创建地图图表
+                const chart = root.container.children.push(
+                    am5map.MapChart.new(root, {
+                        projection: am5map.geoOrthographic(),
+                        panX: "rotateX",
+                        panY: "rotateY",
+                        paddingLeft: 0,
+                        paddingRight: 0,
+                        paddingBottom: 0,
+                        paddingTop: 0,
+                        wheelX: "rotateX",
+                        wheelY: "rotateY",
+                        maxZoomLevel: 1,
+                        minZoomLevel: 1
+                    })
+                );
+                
+                // 添加自动旋转控制
+                let rotationInterval;
+                let isAutoRotating = true;
+                let currentRotation = 0;
+                const rotationSpeed = 0.5; // 旋转速度
+
+                function startAutoRotation() {
+                    if (rotationInterval) return;
+                    // 获取当前旋转角度
+                    currentRotation = chart.get("rotationX");
+                    rotationInterval = setInterval(() => {
+                        currentRotation += rotationSpeed;
+                        chart.set("rotationX", currentRotation);
+                    }, 50);
+                }
+
+                function stopAutoRotation() {
+                    if (rotationInterval) {
+                        clearInterval(rotationInterval);
+                        rotationInterval = null;
+                    }
+                }
+
+                // 鼠标悬停时停止旋转
+                chart.events.on("pointerover", function() {
+                    stopAutoRotation();
+                });
+
+                // 鼠标离开时恢复旋转
+                chart.events.on("pointerout", function() {
+                    if (isAutoRotating) {
+                        startAutoRotation();
+                    }
+                });
+
+                // 拖动结束时更新当前旋转角度
+                chart.events.on("dragend", function() {
+                    currentRotation = chart.get("rotationX");
+                });
+
+                // 双击切换自动旋转
+                chart.events.on("dblclick", function() {
+                    isAutoRotating = !isAutoRotating;
+                    if (isAutoRotating) {
+                        startAutoRotation();
+                    } else {
+                        stopAutoRotation();
+                    }
+                });
+
+                // 开始自动旋转
+                startAutoRotation();
+
+                // 添加拖动控制
+                chart.set("panX", "rotateX");
+                chart.set("panY", "rotateY");
+                
+                // 禁用鼠标滚轮缩放
+                root.events.on("wheel", function(ev) {
+                    ev.originalEvent.preventDefault();
+                    return false;
+                });
+                
+                // 更彻底地禁用缩放
+                chart.set("wheelX", "none");
+                chart.set("wheelY", "none");
+                chart.set("maxZoomLevel", 1);
+                chart.set("minZoomLevel", 1);
+                chart.set("maxPanOut", 0);
+                
+                // 添加地球背景 - 海洋
+                chart.series.push(
+                    am5map.MapPolygonSeries.new(root, {
+                        fill: am5.color(0x1e3a8a),
+                        stroke: am5.color(0x3b82f6),
+                        strokeOpacity: 0.2,
+                        fillOpacity: 0.8
+                    })
+                ).mapPolygons.template.setAll({
+                    fill: am5.color(0x1e3a8a),
+                    strokeOpacity: 0,
+                    interactive: false
+                });
+                
+                // 添加地图外的轮廓圆环
+                const graticuleSeries = chart.series.push(
+                    am5map.GraticuleSeries.new(root, {
+                        step: 10
+                    })
+                );
+                graticuleSeries.mapLines.template.setAll({
+                    stroke: am5.color(0xffffff),
+                    strokeOpacity: 0.1
+                });
+                
+                // 创建多边形系列 - 所有国家底图
+                const worldSeries = chart.series.push(
+                    am5map.MapPolygonSeries.new(root, {
+                        geoJSON: am5geodata_worldLow,
+                        exclude: ["AQ"], // 排除南极洲
+                        fill: am5.color(0x334155),
+                        stroke: am5.color(0xffffff),
+                        strokeWidth: 0.5,
+                        strokeOpacity: 0.5
+                    })
+                );
+                
+                worldSeries.mapPolygons.template.setAll({
+                    fillOpacity: 0.8,
+                    templateField: "polygonSettings",
+                    tooltipText: "{name}",
+                    interactive: true
+                });
+                
+                // 设置鼠标悬停效果
+                worldSeries.mapPolygons.template.states.create("hover", {
+                    fill: am5.color(0x3b82f6),
+                    strokeWidth: 1
+                });
+                
+                // 为已访问国家创建系列
+                const visitedSeries = chart.series.push(
+                    am5map.MapPolygonSeries.new(root, {
+                        geoJSON: am5geodata_worldLow,
+                        include: visitedCountries,
+                        fill: am5.color(0x4ade80),
+                        stroke: am5.color(0xffffff),
+                        strokeWidth: 0.5,
+                        strokeOpacity: 0.8
+                    })
+                );
+                
+                // 设置已访问国家样式
+                visitedSeries.mapPolygons.template.setAll({
+                    fillOpacity: 0.8,
+                    tooltipText: "{name}",
+                    interactive: true
+                });
+                
+                // 添加鼠标悬停效果
+                visitedSeries.mapPolygons.template.states.create("hover", {
+                    fill: am5.color(0x3b82f6),
+                    strokeWidth: 2,
+                    stroke: am5.color(0xffffff)
+                });
+                
+                // 自定义工具提示
+                visitedSeries.mapPolygons.template.events.on("pointerover", function(ev) {
+                    const countryId = ev.target.dataItem.dataContext.id;
+                    const countryName = countryNames[countryId] || ev.target.dataItem.dataContext.name;
+                    const tooltip = ev.target.get("tooltip");
+                    if (tooltip) {
+                        tooltip.set("html", `
+                            <div style="padding: 10px; background: rgba(0,0,0,0.8); border-radius: 5px;">
+                                <h3 style="margin: 0 0 5px 0; color: #4ade80;">${countryName}</h3>
+                                <p style="margin: 0; color: #fff;">已去过</p>
+                                <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9em;">点击查看详情</p>
+                            </div>
+                        `);
+                    }
+                });
+                
+                // 点击已去过国家显示信息
+                visitedSeries.mapPolygons.template.events.on("click", function(ev) {
+                    const countryId = ev.target.dataItem.dataContext.id;
+                    window.location.href = `country_details.html?id=${countryId}&status=visited`;
+                });
+                
+                // 为计划访问国家创建系列
+                const toVisitSeries = chart.series.push(
+                    am5map.MapPolygonSeries.new(root, {
+                        geoJSON: am5geodata_worldLow,
+                        include: toVisitCountries,
+                        fill: am5.color(0xfbbf24),
+                        stroke: am5.color(0xffffff),
+                        strokeWidth: 0.5,
+                        strokeOpacity: 0.8
+                    })
+                );
+                
+                // 设置计划访问国家样式
+                toVisitSeries.mapPolygons.template.setAll({
+                    fillOpacity: 0.8,
+                    tooltipText: "{name}",
+                    interactive: true
+                });
+                
+                // 添加鼠标悬停效果
+                toVisitSeries.mapPolygons.template.states.create("hover", {
+                    fill: am5.color(0x3b82f6),
+                    strokeWidth: 2,
+                    stroke: am5.color(0xffffff)
+                });
+                
+                // 自定义工具提示
+                toVisitSeries.mapPolygons.template.events.on("pointerover", function(ev) {
+                    const countryId = ev.target.dataItem.dataContext.id;
+                    const countryName = countryNames[countryId] || ev.target.dataItem.dataContext.name;
+                    const tooltip = ev.target.get("tooltip");
+                    if (tooltip) {
+                        tooltip.set("html", `
+                            <div style="padding: 10px; background: rgba(0,0,0,0.8); border-radius: 5px;">
+                                <h3 style="margin: 0 0 5px 0; color: #fbbf24;">${countryName}</h3>
+                                <p style="margin: 0; color: #fff;">计划前往</p>
+                                <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9em;">点击查看详情</p>
+                            </div>
+                        `);
+                    }
+                });
+                
+                // 点击计划前往国家显示信息
+                toVisitSeries.mapPolygons.template.events.on("click", function(ev) {
+                    const countryId = ev.target.dataItem.dataContext.id;
+                    window.location.href = `country_details.html?id=${countryId}&status=to-visit`;
+                });
+                
+                // 添加旋转动画
+                chart.animate({
+                    key: "rotationX",
+                    from: 0,
+                    to: 360,
+                    duration: 60000,
+                    loops: Infinity
+                });
+                
+                // 添加缩放控制
+                chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
+                chart.get("zoomControl").set("forceHidden", true); // 隐藏默认缩放控件，保持球形
+                
+                // 背景
+                chart.set("background", am5.Rectangle.new(root, {
+                    fill: am5.color(0x0c1b33),
+                    fillOpacity: 1
+                }));
+                
+                // 添加飞行线
+                function addFlightLines() {
+                    // 创建线系列
+                    const lineSeries = chart.series.push(
+                        am5map.MapLineSeries.new(root, {})
+                    );
+
+                    // 线样式
+                    lineSeries.mapLines.template.setAll({
+                        stroke: am5.color(0x3b82f6),
+                        strokeWidth: 2,
+                        strokeOpacity: 0.5,
+                        strokeDasharray: [3, 3]
+                    });
+
+                    // 为已访问国家添加连接线
+                    const center = { latitude: 35.8617, longitude: 104.1954 }; // 中国中心点
+                    
+                    // 国家地理中心点数据
+                    const geoPoints = {
+                        "JP": { latitude: 36.2048, longitude: 138.2529 },
+                        "US": { latitude: 37.0902, longitude: -95.7129 },
+                        "GB": { latitude: 55.3781, longitude: -3.4360 },
+                        "FR": { latitude: 46.2276, longitude: 2.2137 },
+                        "DE": { latitude: 51.1657, longitude: 10.4515 },
+                        "IT": { latitude: 41.8719, longitude: 12.5674 },
+                        "AU": { latitude: -25.2744, longitude: 133.7751 },
+                        "NZ": { latitude: -40.9006, longitude: 174.8860 },
+                        "BR": { latitude: -14.2350, longitude: -51.9253 },
+                        "ZA": { latitude: -30.5595, longitude: 22.9375 },
+                        "EG": { latitude: 26.8206, longitude: 30.8025 },
+                        "IN": { latitude: 20.5937, longitude: 78.9629 }
+                    };
+
+                    // 添加连接线
+                    visitedCountries.forEach(countryCode => {
+                        if (countryCode === "CN") return; // 跳过中国自己
+                        
+                        const targetPoint = geoPoints[countryCode];
+                        if (!targetPoint) return;
+                        
+                        lineSeries.pushDataItem({
+                            pointsToConnect: [
+                                { latitude: center.latitude, longitude: center.longitude },
+                                { latitude: targetPoint.latitude, longitude: targetPoint.longitude }
+                            ]
+                        });
+                    });
+                    
+                    // 添加动画效果
+                    setTimeout(() => {
+                        const lines = lineSeries.mapLines.values;
+                        lines.forEach(line => {
+                            const totalLength = 6; // strokeDasharray 总长度 (3+3)
+                            line.animate({
+                                key: "strokeDashoffset",
+                                from: totalLength,
+                                to: 0,
+                                duration: 3000,
+                                loops: Infinity,
+                                easing: am5.ease.linear
+                            });
+                            
+                            line.animate({
+                                key: "strokeOpacity",
+                                from: 0.2,
+                                to: 0.5,
+                                duration: 1500,
+                                loops: Infinity,
+                                easing: am5.ease.yoyo(am5.ease.cubic)
+                            });
+                        });
+                    }, 1000);
+                }
+
+                // 添加星星
+                function addStars() {
+                    // 创建星星系列
+                    const starSeries = chart.series.push(
+                        am5map.MapPointSeries.new(root, {})
+                    );
+                    
+                    // 星星样式
+                    starSeries.bullets.push(function() {
+                        const star = am5.Circle.new(root, {
+                            radius: Math.random() * 2 + 1,
+                            fill: am5.color(0xffffff),
+                            fillOpacity: Math.random() * 0.3 + 0.2,
+                            strokeOpacity: 0
+                        });
+                        
+                        // 闪烁效果
+                        star.animate({
+                            key: "fillOpacity",
+                            from: 0.1,
+                            to: 0.5,
+                            duration: Math.random() * 2000 + 1000,
+                            loops: Infinity,
+                            easing: am5.ease.yoyo(am5.ease.cubic)
+                        });
+                        
+                        return am5.Bullet.new(root, {
+                            sprite: star
+                        });
+                    });
+                    
+                    // 添加随机星星
+                    for (let i = 0; i < 100; i++) {
+                        starSeries.data.push({
+                            geometry: {
+                                type: "Point",
+                                coordinates: [
+                                    Math.random() * 360 - 180, // 经度
+                                    Math.random() * 180 - 90   // 纬度
+                                ]
+                            }
+                        });
+                    }
+                }
+
+                // 添加飞行线和星星
+                addFlightLines();
+                addStars();
+                
+                // 居中显示
+                chart.appear(1000, 100);
+                
+                // 更新地图主题函数 - 简化版本
+                window.updateMapTheme = function() {
+                    // 检查全局chartRoot是否存在
+                    if (!window.chartRoot) return;
+                    
+                    const root = window.chartRoot;
+                    
+                    // 获取当前模式中的CSS变量
+                    const getThemeColor = (varName) => {
+                        return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+                    };
+                    
+                    // 转换CSS颜色变量为十六进制
+                    const cssColorToHex = (cssColor) => {
+                        if (cssColor.startsWith('#')) {
+                            return parseInt(cssColor.slice(1), 16);
+                        }
+                        
+                        const tempElem = document.createElement('div');
+                        tempElem.style.color = cssColor;
+                        document.body.appendChild(tempElem);
+                        
+                        const computedColor = getComputedStyle(tempElem).color;
+                        document.body.removeChild(tempElem);
+                        
+                        const rgbMatch = computedColor.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+                        if (rgbMatch) {
+                            const r = parseInt(rgbMatch[1]);
+                            const g = parseInt(rgbMatch[2]);
+                            const b = parseInt(rgbMatch[3]);
+                            return (r << 16) + (g << 8) + b;
+                        }
+                        
+                        return 0x000000;
+                    };
+                    
+                    try {
+                        const chart = root.container.children.getIndex(0);
+                        if (!chart) return;
+                        
+                        // 更新海洋背景色
+                        const oceanSeries = chart.series.getIndex(0);
+                        if (oceanSeries && oceanSeries.mapPolygons && oceanSeries.mapPolygons.template) {
+                            oceanSeries.mapPolygons.template.set("fill", 
+                                am5.color(cssColorToHex(getThemeColor('--globe-ocean-color')))
+                            );
+                        }
+                        
+                        // 更新网格线
+                        const graticuleSeries = chart.series.getIndex(1);
+                        if (graticuleSeries && graticuleSeries.mapLines && graticuleSeries.mapLines.template) {
+                            graticuleSeries.mapLines.template.set("stroke", 
+                                am5.color(cssColorToHex(getThemeColor('--globe-grid-color')))
+                            );
+                        }
+                        
+                        // 更新国家基本色
+                        const worldSeries = chart.series.getIndex(2);
+                        if (worldSeries && worldSeries.mapPolygons && worldSeries.mapPolygons.template) {
+                            worldSeries.mapPolygons.template.set("fill", 
+                                am5.color(cssColorToHex(getThemeColor('--globe-countries-color')))
+                            );
+                        }
+                        
+                        // 遍历所有系列，更新飞行线和星星系列
+                        for (let i = 0; i < chart.series.length; i++) {
+                            const series = chart.series.getIndex(i);
+                            
+                            if (series instanceof am5map.MapLineSeries && series.mapLines && series.mapLines.template) {
+                                series.mapLines.template.set("stroke", 
+                                    am5.color(cssColorToHex(getThemeColor('--primary-color')))
+                                );
+                            }
+                            
+                            if (series instanceof am5map.MapPointSeries && series.bullets) {
+                                series.bullets.each(function(bullet) {
+                                    if (bullet.get("sprite")) {
+                                        bullet.get("sprite").set("fill", am5.color(0xffffff));
+                                    }
+                                });
+                            }
+                        }
+                        
+                        // 更新背景
+                        chart.set("background", am5.Rectangle.new(root, {
+                            fill: am5.color(cssColorToHex(getThemeColor('--globe-background'))),
+                            fillOpacity: 1
+                        }));
+                        
+                    } catch (error) {
+                        console.log('地图主题更新失败', error);
+                    }
+                    
+                    // 更新地图图例样式
+                    const mapLegend = document.querySelector('.map-legend');
+                    if (mapLegend) {
+                        mapLegend.style.backgroundColor = getThemeColor('--nav-background');
+                        mapLegend.style.borderColor = getThemeColor('--card-border');
+                        mapLegend.style.boxShadow = `0 8px 20px ${getThemeColor('--card-shadow-color')}`;
+                    }
+                    
+                    // 更新光晕效果
+                    const mapGlow = document.querySelector('.map-glow');
+                    if (mapGlow) {
+                        const glowColor = getThemeColor('--globe-background');
+                        mapGlow.style.background = `radial-gradient(circle at center, ${glowColor} 30%, transparent 70%)`;
+                    }
+                };
+                
+                // 应用初始主题
+                setTimeout(() => {
+                    window.updateMapTheme();
+                }, 200);
+            });
+        });
+
+        // 添加粒子动画
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            if (!container) return;
+            
+            // 清除现有的粒子
+            container.innerHTML = '';
+            
+            // 创建新粒子
+            const particleCount = window.innerWidth < 768 ? 15 : 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // 随机尺寸
+                const size = Math.random() * 6 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // 随机位置
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                particle.style.left = `${x}%`;
+                particle.style.top = `${y}%`;
+                
+                // 随机动画时长和延迟
+                const duration = Math.random() * 20 + 15;
+                const delay = Math.random() * 10;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                // 添加到容器
+                container.appendChild(particle);
+            }
+        }
+
+        // 页面加载和窗口大小改变时创建粒子
+        window.addEventListener('load', createParticles);
+        window.addEventListener('resize', createParticles);
+
+        // 添加浮动地球仪初始化函数
+        function initFloatingGlobe() {
+            // Create root element
+            const root = am5.Root.new("floatingGlobeDiv");
+
+            // Set themes
+            root.setThemes([am5themes_Dark.new(root), am5themes_Animated.new(root)]);
+
+            // Create the map chart
+            const chart = root.container.children.push(am5map.MapChart.new(root, {
+                panX: "rotateX",
+                panY: "rotateY",
+                projection: am5map.geoOrthographic(),
+                paddingBottom: 0,
+                paddingTop: 0,
+                paddingLeft: 0,
+                paddingRight: 0
+            }));
+
+            // Create polygon series
+            const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
+                geoJSON: am5geodata_worldLow,
+                exclude: ["AQ"]
+            }));
+
+            polygonSeries.mapPolygons.template.setAll({
+                tooltipText: "{name}",
+                toggleKey: "active",
+                interactive: true,
+                fill: am5.color(0x3b82f6),
+                strokeWidth: 0.5,
+                stroke: am5.color(0x000000),
+                fillOpacity: 0.8
+            });
+
+            // Create animation
+            chart.animate({
+                key: "rotationX",
+                from: 0,
+                to: 360,
+                duration: 30000,
+                loops: Infinity
+            });
+
+            // Make it responsive
+            root.setThemes([
+                am5themes_Dark.new(root),
+                am5themes_Animated.new(root),
+                am5.ResponsiveTheme.new(root)
+            ]);
+
+            // Add click event to navigate to main globe
+            document.querySelector('.floating-globe').addEventListener('click', function() {
+                document.querySelector('#chartdiv').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            });
+
+            // Cleanup on component unmount
+            return () => {
+                root.dispose();
+            };
+        }
+
+        // 在页面加载完成后初始化浮动地球仪
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing initialization code ...
+            
+            // 初始化浮动地球仪
+            initFloatingGlobe();
+        });
+
+        // 添加留言相关函数
+        function showMessageModal() {
+            const modal = document.getElementById('messageModal');
+            modal.classList.add('active');
+            // 防止背景滚动
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMessageModal() {
+            const modal = document.getElementById('messageModal');
+            modal.classList.remove('active');
+            // 恢复背景滚动
+            document.body.style.overflow = '';
+            // 重置表单
+            resetMessageForm();
+            }
+            
+        function resetMessageForm() {
+            document.getElementById('nameInput').value = '';
+            document.getElementById('contactInput').value = '';
+            document.getElementById('messageInput').value = '';
+            document.getElementById('messageForm').style.display = 'flex';
+            document.getElementById('messageSuccess').classList.remove('active');
+        }
+
+        function submitMessage() {
+            const name = document.getElementById('nameInput').value.trim();
+            const contact = document.getElementById('contactInput').value.trim();
+            const message = document.getElementById('messageInput').value.trim();
+
+            if (!name || !message) {
+                alert('请填写称呼和留言内容');
+                return;
+            }
+
+            // 这里可以添加发送留言到服务器的代码
+            // 模拟发送成功
+            document.getElementById('messageForm').style.display = 'none';
+            document.getElementById('messageSuccess').classList.add('active');
+
+            // 3秒后关闭模态框
+            setTimeout(() => {
+                closeMessageModal();
+            }, 3000);
+        }
+
+        // 更新点击事件
+        document.querySelector('.floating-globe').addEventListener('click', function(e) {
+            e.preventDefault();
+            showMessageModal();
+        });
+
+        // 点击遮罩层关闭模态框
+        document.getElementById('messageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMessageModal();
+            }
+        });
+    </script>
+</body>
+</html>
