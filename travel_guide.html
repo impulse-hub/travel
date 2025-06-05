@@ -91,6 +91,27 @@
             transition: all 0.3s ease;
         }
 
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 0;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex: 1;
+        }
+
+        .music-player {
+            display: flex;
+            align-items: center;
+            margin-left: 2rem;
+        }
+
         .logo {
             font-size: 1.5rem;
             font-weight: 600;
@@ -100,6 +121,8 @@
             align-items: center;
             gap: 0.75rem;
             transition: transform 0.3s ease;
+            white-space: nowrap;
+            min-width: max-content;
         }
 
         .logo:hover {
@@ -113,6 +136,7 @@
         .nav-links {
             display: flex;
             gap: 2.5rem;
+            margin-left: auto;
         }
 
         .nav-links a {
@@ -390,6 +414,28 @@
             }
         }
 
+        @media (max-width: 1200px) {
+            .music-player {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-left {
+                justify-content: center;
+            }
+
+            .nav-links {
+                margin-left: 0;
+                justify-content: center;
+            }
+        }
+
         #chartdiv {
             width: 100%;
             height: 500px;
@@ -543,25 +589,667 @@
         .resource-content.loading {
             opacity: 0.5;
         }
+
+        .country-details {
+            padding: 4rem 0;
+            background-color: var(--card-background);
+            margin-top: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .country-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+
+        .country-header h2 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .country-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-weight: 300;
+        }
+
+        .country-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            padding: 0 1rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .info-card {
+            background-color: var(--accent-color);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .card-icon {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .info-card h3 {
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        .card-content {
+            color: #94a3b8;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .card-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            min-height: 150px;
+        }
+
+        .card-content li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .card-content li::before {
+            content: '•';
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .country-info-grid {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .info-card {
+                margin-bottom: 1rem;
+            }
+        }
+
+        main {
+            padding-top: 6rem;
+        }
+
+        .map-instructions {
+            margin-bottom: 2rem;
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .map-instructions h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .instruction-cards {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .instruction-card {
+            background-color: var(--accent-color);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border);
+            min-width: 200px;
+            transition: transform 0.3s ease;
+        }
+
+        .instruction-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .instruction-card i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .instruction-card p {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        #chartdiv {
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .instruction-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .instruction-card {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            main {
+                padding-top: 5rem;
+            }
+        }
+
+        /* 添加汇率转换模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--card-background);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 800px;
+            border: 1px solid var(--card-border);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-header h3 {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            color: var(--text-color);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+        }
+
+        .exchange-form {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border);
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .exchange-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .exchange-info {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        #result {
+            background-color: var(--accent-color) !important;
+            cursor: not-allowed;
+        }
+
+        /* 让货币卡片可点击 */
+        .info-card[data-type="currency"] {
+            cursor: pointer;
+        }
+
+        .info-card[data-type="currency"]:hover {
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .exchange-form {
+                flex-direction: column;
+            }
+
+            .exchange-arrow {
+                transform: rotate(90deg);
+                margin: 1rem 0;
+            }
+        }
+
+        /* 更新播放器容器样式 */
+        .player-container {
+            background-color: var(--accent-color);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 250px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .song-title {
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* 优化播放控制样式 */
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 0.1rem;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.25rem;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .volume-control i {
+            font-size: 0.8rem;
+        }
+
+        #volumeSlider {
+            width: 50px;
+            height: 3px;
+            -webkit-appearance: none;
+            background: var(--primary-color);
+            border-radius: 1.5px;
+            outline: none;
+        }
+
+        #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 10px;
+            height: 10px;
+            background: var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #volumeSlider::-moz-range-thumb {
+            width: 10px;
+            height: 10px;
+            background: var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* 添加音乐注释样式 */
+        .player-note {
+            font-size: 0.7rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            text-align: center;
+            margin-top: 0.25rem;
+        }
+
+        /* 语言模态框样式 */
+        .language-guide {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .language-section {
+            background: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        .language-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .phrase-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .phrase-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .phrase-original {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .phrase-pinyin {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .phrase-translation {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .language-tips {
+            background: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+
+        .language-tips h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .language-tips ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .language-tips li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .language-tips li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+        }
+
+        .clock-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 3rem;
+            gap: 4rem;
+        }
+
+        .clock {
+            text-align: center;
+            padding: 3rem;
+            background: var(--accent-color);
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            min-width: 300px;
+        }
+
+        .analog-clock {
+            width: 200px;
+            height: 200px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            background: var(--card-background);
+        }
+
+        .analog-clock .center {
+            background: var(--primary-color);
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            left: 95px;
+            top: 95px;
+            border-radius: 50%;
+            z-index: 3;
+        }
+
+        .analog-clock .marking {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: transparent;
+            left: 99px;
+            transform-origin: 50% 50%;
+        }
+
+        .analog-clock .marking:before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            width: 2px;
+            height: 12px;
+            background: #94a3b8;
+        }
+
+        .analog-clock .marking:nth-child(1) { transform: rotate(30deg); }
+        .analog-clock .marking:nth-child(2) { transform: rotate(60deg); }
+        .analog-clock .marking:nth-child(3) { transform: rotate(90deg); }
+        .analog-clock .marking:nth-child(4) { transform: rotate(120deg); }
+        .analog-clock .marking:nth-child(5) { transform: rotate(150deg); }
+        .analog-clock .marking:nth-child(6) { transform: rotate(180deg); }
+        .analog-clock .marking:nth-child(7) { transform: rotate(210deg); }
+        .analog-clock .marking:nth-child(8) { transform: rotate(240deg); }
+        .analog-clock .marking:nth-child(9) { transform: rotate(270deg); }
+        .analog-clock .marking:nth-child(10) { transform: rotate(300deg); }
+        .analog-clock .marking:nth-child(11) { transform: rotate(330deg); }
+        .analog-clock .marking:nth-child(12) { transform: rotate(0deg); }
+
+        .analog-clock .hour-hand {
+            width: 4px;
+            height: 60px;
+            background: var(--text-color);
+            position: absolute;
+            left: 98px;
+            top: 40px;
+            transform-origin: 50% 100%;
+            border-radius: 2px;
+            z-index: 2;
+        }
+
+        .analog-clock .minute-hand {
+            width: 2px;
+            height: 80px;
+            background: var(--primary-color);
+            position: absolute;
+            left: 99px;
+            top: 20px;
+            transform-origin: 50% 100%;
+            border-radius: 1px;
+            z-index: 1;
+        }
+
+        .analog-clock .second-hand {
+            width: 1px;
+            height: 90px;
+            background: #ef4444;
+            position: absolute;
+            left: 99.5px;
+            top: 10px;
+            transform-origin: 50% 100%;
+            border-radius: 1px;
+            z-index: 4;
+        }
+
+        .analog-clock .second-hand::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -2px;
+            width: 5px;
+            height: 5px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+
+        .clock h4 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .clock .time {
+            font-size: 3.5rem;
+            color: var(--text-color);
+            font-family: monospace;
+            margin-bottom: 1rem;
+        }
+
+        .clock .date {
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
     <header>
         <nav class="container">
-            <a href="index.html" class="logo">
-                <span class="logo-icon">🌍</span>
-                <span>QKH的旅行幻想</span>
-            </a>
-            <div class="nav-links">
-                <a href="index.html">主页</a>
-                <a href="country_details.html">国家详情</a>
-                <a href="travel_guide.html" class="active">旅行指南</a>
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="index.html" class="logo">
+                        <span class="logo-icon">🌍</span>
+                        <span>QKH的旅行幻想</span>
+                    </a>
+                    <div class="music-player">
+                        <div class="player-container">
+                            <div class="player-info">
+                                <span class="song-title">Civilization VI OST - China Theme</span>
+                            </div>
+                            <audio id="bgMusic" src="China.mp3" preload="auto" autoplay></audio>
+                            <div class="player-controls">
+                                <button id="playPauseBtn" class="control-btn">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <div class="volume-control">
+                                    <i class="fas fa-volume-up"></i>
+                                    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">主页</a>
+                    <a href="country_details.html">国家详情</a>
+                    <a href="travel_guide.html" class="active">旅行指南</a>
+                </div>
             </div>
         </nav>
     </header>
 
     <main>
         <div class="container">
+            <!-- 添加地图交互提示 -->
+            <div class="map-instructions">
+                <h2>世界旅行地图</h2>
+                <div class="instruction-cards">
+                    <div class="instruction-card">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <p>点击高亮国家（绿色）查看详细旅行信息</p>
+                    </div>
+                    <div class="instruction-card">
+                        <i class="fas fa-search-plus"></i>
+                        <p>使用鼠标滚轮或触控板进行缩放</p>
+                    </div>
+                    <div class="instruction-card">
+                        <i class="fas fa-hand-paper"></i>
+                        <p>按住鼠标左键拖动地图</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Chart code -->
             <script>
             am5.ready(function() {
@@ -591,56 +1279,59 @@
                 }));
 
                 // 设置国家的默认外观
-polygonSeries.mapPolygons.template.setAll({
-    tooltipText: "{name}",
-    toggleKey: "active",
-    interactive: true,
-    fill: am5.color(0x3b82f6),
-    fillOpacity: 0.3
-});
-
-const highlightedCountriesByName = [
-  "New Zealand",
-  "United Kingdom",
-  "France",
-  "Germany",
-  "Egypt",
-  "Brazil",
-  "Canada",
-  "Mexico",
-  "North Korea",
-  "Italy"
-];
-
-polygonSeries.events.on("datavalidated", function() {
-  polygonSeries.mapPolygons.each(function(polygon) {
-    const countryName = polygon.dataItem.dataContext.name;
-
-    if (highlightedCountriesByName.includes(countryName)) {
-      const green = am5.color(0x166534);
-      polygon.setAll({
-        fill: green,
-        fillOpacity: 0.6
-      });
-      polygon.states.lookup("default").setAll({
-        fill: green
-      });
-    }
-  });
-});
-
-
+                polygonSeries.mapPolygons.template.setAll({
+                    tooltipText: "{name}",
+                    toggleKey: "active",
+                    interactive: true,
+                    fill: am5.color(0x3b82f6),
+                    fillOpacity: 0.3,
+                    cursorOverStyle: "pointer"
+                });
 
                 // 设置悬停状态
                 polygonSeries.mapPolygons.template.states.create("hover", {
-                    fill: root.interfaceColors.get("primaryButtonHover"),
+                    fill: am5.color(0x60a5fa),
                     fillOpacity: 0.8
                 });
 
-                // 设置激活状态
-                polygonSeries.mapPolygons.template.states.create("active", {
-                    fill: root.interfaceColors.get("primaryButtonHover"),
-                    fillOpacity: 0.8
+                // 确保高亮国家可以交互
+                const highlightedCountriesByName = [
+                    "New Zealand",
+                    "United Kingdom",
+                    "France",
+                    "Germany",
+                    "Egypt",
+                    "Brazil",
+                    "Canada",
+                    "Mexico",
+                    "North Korea",
+                    "Italy"
+                ];
+
+                polygonSeries.events.on("datavalidated", function() {
+                    polygonSeries.mapPolygons.each(function(polygon) {
+                        const countryName = polygon.dataItem.dataContext.name;
+                        
+                        if (highlightedCountriesByName.includes(countryName)) {
+                            const green = am5.color(0x166534);
+                            polygon.setAll({
+                                fill: green,
+                                fillOpacity: 0.6,
+                                interactive: true,
+                                cursorOverStyle: "pointer"
+                            });
+                            polygon.states.create("hover", {
+                                fill: am5.color(0x15803d),
+                                fillOpacity: 0.8
+                            });
+
+                            // 为每个高亮国家添加点击事件
+                            polygon.events.on("click", function() {
+                                console.log("Clicked country:", countryName); // 调试日志
+                                updateCountryDisplay(countryName);
+                            });
+                        }
+                    });
                 });
 
                 var previousPolygon;
@@ -670,11 +1361,245 @@ polygonSeries.events.on("datavalidated", function() {
 
                 // Make stuff animate on load
                 chart.appear(1000, 100);
+
             }); // end am5.ready()
             </script>
 
             <!-- HTML -->
             <div id="chartdiv"></div>
+
+            <!-- 国家详情模块 -->
+            <section class="country-details" id="countryDetails" style="display: none;">
+                <div class="container">
+                    <div class="country-header">
+                        <h2 id="selectedCountryName"></h2>
+                        <p>点击也许会收获更多发现哦</p>
+                    </div>
+                    
+                    <div class="country-info-grid">
+                        <!-- 基本信息卡片 -->
+                        <div class="info-card">
+                            <div class="card-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <h3>基本信息</h3>
+                            <div id="basicInfo" class="card-content"></div>
+                        </div>
+                        
+                        <!-- 货币信息卡片 -->
+                        <div class="info-card">
+                            <div class="card-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <h3>货币信息</h3>
+                            <div id="currencyInfo" class="card-content"></div>
+                        </div>
+                        
+                        <!-- 语言信息卡片 -->
+                        <div class="info-card">
+                            <div class="card-icon">
+                                <i class="fas fa-language"></i>
+                            </div>
+                            <h3>语言信息</h3>
+                            <div id="languageInfo" class="card-content"></div>
+                        </div>
+                        
+                        <!-- 实用链接卡片 -->
+                        <div class="info-card">
+                            <div class="card-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <h3>实用链接</h3>
+                            <div id="usefulLinks" class="card-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 添加国家指南区域 -->
+            <div id="countryGuide" class="country-guide" style="display: none;">
+                <h2>
+                    <span id="countryName">国家旅游攻略</span>
+                    <span id="loadingSpinner" class="loading-spinner"></span>
+                </h2>
+                <div class="country-guide-content">
+                    <div id="countryGuideContent" class="content-transition">
+                        <p class="country-guide-placeholder">点击地图上的高亮国家查看详细信息</p>
+                    </div>
+                    
+                    <!-- 实用资源区域 -->
+                    <div class="travel-resources">
+                        <h3>实用资源</h3>
+                        <div class="tips-container">
+                            <div class="tip-card">
+                                <div class="tip-icon">
+                                    <i class="fas fa-mobile-alt fa-2x"></i>
+                                </div>
+                                <h3>推荐应用</h3>
+                                <div id="appsContent" class="resource-content">
+                                    <p>选择国家查看推荐应用</p>
+                                </div>
+                            </div>
+                            
+                            <div class="tip-card">
+                                <div class="tip-icon">
+                                    <i class="fas fa-money-bill-wave fa-2x"></i>
+                                </div>
+                                <h3>资金管理</h3>
+                                <div id="financeContent" class="resource-content">
+                                    <p>选择国家查看资金使用建议</p>
+                                </div>
+                            </div>
+                            
+                            <div class="tip-card">
+                                <div class="tip-icon">
+                                    <i class="fas fa-language fa-2x"></i>
+                                </div>
+                                <h3>语言指南</h3>
+                                <div id="languageContent" class="resource-content">
+                                    <p>选择国家查看语言指南</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加汇率转换模态框 -->
+            <div id="exchangeRateModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>汇率转换器</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="exchange-form">
+                            <div class="input-group">
+                                <input type="number" id="amount" value="100" min="0" step="0.01">
+                                <select id="fromCurrency">
+                                    <option value="CNY">人民币 (CNY)</option>
+                                    <option value="USD">美元 (USD)</option>
+                                    <option value="EUR">欧元 (EUR)</option>
+                                    <option value="GBP">英镑 (GBP)</option>
+                                    <option value="JPY">日元 (JPY)</option>
+                                </select>
+                            </div>
+                            <div class="exchange-arrow">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="input-group">
+                                <input type="number" id="result" readonly>
+                                <select id="toCurrency">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="exchange-info">
+                            <p>汇率更新时间：2025年6月5日</p>
+                            <p id="rateInfo"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加语言信息模态框 -->
+            <div id="languageModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>语言学习指南</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="language-guide">
+                            <div class="language-section">
+                                <h4>基本会话</h4>
+                                <div id="basicPhrases" class="phrase-list">
+                                    <!-- 动态填充 -->
+                                </div>
+                            </div>
+                            <div class="language-section">
+                                <h4>紧急用语</h4>
+                                <div id="emergencyPhrases" class="phrase-list">
+                                    <!-- 动态填充 -->
+                                </div>
+                            </div>
+                            <div class="language-section">
+                                <h4>实用词汇</h4>
+                                <div id="usefulVocabulary" class="phrase-list">
+                                    <!-- 动态填充 -->
+                                </div>
+                            </div>
+                            <div class="language-section">
+                                <h4>文化用语</h4>
+                                <div id="culturalPhrases" class="phrase-list">
+                                    <!-- 动态填充 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加基本信息模态框 -->
+            <div id="basicInfoModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>时钟</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="basic-info-details">
+                            <div class="clock-container">
+                                <div class="clock" id="beijingClock">
+                                    <h4>北京时间</h4>
+                                    <div class="analog-clock">
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="hour-hand"></div>
+                                        <div class="minute-hand"></div>
+                                        <div class="second-hand"></div>
+                                        <div class="center"></div>
+                                    </div>
+                                    <div class="time">00:00:00</div>
+                                    <div class="date">2024年1月1日</div>
+                                </div>
+                                <div class="clock" id="localClock">
+                                    <h4>当地时间</h4>
+                                    <div class="analog-clock">
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="marking"></div>
+                                        <div class="hour-hand"></div>
+                                        <div class="minute-hand"></div>
+                                        <div class="second-hand"></div>
+                                        <div class="center"></div>
+                                    </div>
+                                    <div class="time">00:00:00</div>
+                                    <div class="date">2024年1月1日</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -877,7 +1802,7 @@ polygonSeries.events.on("datavalidated", function() {
                     "小费文化普遍"
                 ],
                 language: [
-                    "官方语言：英语和法语",
+                    "官方语言：英语、法语",
                     "常见法语：Bonjour",
                     "魁北克地区主要讲法语"
                 ]
@@ -890,13 +1815,14 @@ polygonSeries.events.on("datavalidated", function() {
                 ],
                 finance: [
                     "使用墨西哥比索(MXN)",
-                    "现金使用较普遍",
-                    "旅游区可用美元"
+                    "旅游区接受美元",
+                    "信用卡在大城市通用",
+                    "建议携带现金"
                 ],
                 language: [
                     "官方语言：西班牙语",
-                    "Hola (你好)",
-                    "Gracias (谢谢)"
+                    "旅游区可使用英语",
+                    "基本西语很有帮助"
                 ]
             },
             "KP": {
@@ -970,6 +1896,1401 @@ polygonSeries.events.on("datavalidated", function() {
             `;
 
             console.log('Resources updated successfully'); // 添加调试日志
+        }
+
+        // 国家信息数据
+        const countryData = {
+            "New Zealand": {
+                basicInfo: [
+                    "首都：惠灵顿",
+                    "人口：约500万",
+                    "时区：UTC+12",
+                    "驾驶方向：靠左行驶"
+                ],
+                currencyInfo: [
+                    "货币：新西兰元(NZD)",
+                    "信用卡广泛使用",
+                    "建议携带少量现金",
+                    "大多数商家支持电子支付"
+                ],
+                languageInfo: [
+                    "官方语言：英语、毛利语",
+                    "常用毛利语：Kia ora (你好)",
+                    "英语是主要交流语言"
+                ],
+                usefulLinks: [
+                    "新西兰旅游局：www.newzealand.com",
+                    "新西兰移民局：www.immigration.govt.nz",
+                    "新西兰天气预报：www.metservice.com"
+                ]
+            },
+            "United Kingdom": {
+                basicInfo: [
+                    "首都：伦敦",
+                    "人口：约6700万",
+                    "时区：UTC+0",
+                    "驾驶方向：靠左行驶"
+                ],
+                currencyInfo: [
+                    "货币：英镑(GBP)",
+                    "信用卡广泛使用",
+                    "建议携带适量现金",
+                    "支持contactless支付"
+                ],
+                languageInfo: [
+                    "官方语言：英语",
+                    "地区口音差异较大",
+                    "基础礼貌用语必备"
+                ],
+                usefulLinks: [
+                    "英国旅游局：www.visitbritain.com",
+                    "英国交通：www.nationalrail.co.uk",
+                    "伦敦交通：www.tfl.gov.uk"
+                ]
+            },
+            "France": {
+                basicInfo: [
+                    "首都：巴黎",
+                    "人口：约6700万",
+                    "时区：UTC+1",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：欧元(EUR)",
+                    "信用卡广泛使用",
+                    "部分小店需要现金",
+                    "小费文化不普遍"
+                ],
+                languageInfo: [
+                    "官方语言：法语",
+                    "基础法语很重要",
+                    "英语在旅游区通用"
+                ],
+                usefulLinks: [
+                    "法国旅游局：www.france.fr",
+                    "巴黎地铁：www.ratp.fr",
+                    "法国铁路：www.sncf.com"
+                ]
+            },
+            "Germany": {
+                basicInfo: [
+                    "首都：柏林",
+                    "人口：约8300万",
+                    "时区：UTC+1",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：欧元(EUR)",
+                    "现金使用较普遍",
+                    "部分商家不接受信用卡",
+                    "建议随身携带现金"
+                ],
+                languageInfo: [
+                    "官方语言：德语",
+                    "英语在大城市通用",
+                    "基础德语问候语有帮助"
+                ],
+                usefulLinks: [
+                    "德国旅游局：www.germany.travel",
+                    "德铁：www.bahn.com",
+                    "柏林交通：www.bvg.de"
+                ]
+            },
+            "Egypt": {
+                basicInfo: [
+                    "首都：开罗",
+                    "人口：约1亿",
+                    "时区：UTC+2",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：埃及镑(EGP)",
+                    "建议携带美元或欧元",
+                    "大型酒店接受信用卡",
+                    "小商贩需要现金"
+                ],
+                languageInfo: [
+                    "官方语言：阿拉伯语",
+                    "旅游区可使用英语",
+                    "学习基本阿拉伯语问候"
+                ],
+                usefulLinks: [
+                    "埃及旅游局：www.egypt.travel",
+                    "金字塔门票：www.pyramids.gov.eg",
+                    "开罗地铁：www.cairometro.gov.eg"
+                ]
+            },
+            "Brazil": {
+                basicInfo: [
+                    "首都：巴西利亚",
+                    "人口：约2.1亿",
+                    "时区：UTC-3",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：巴西雷亚尔(BRL)",
+                    "信用卡普遍使用",
+                    "建议携带部分现金",
+                    "小费文化普遍"
+                ],
+                languageInfo: [
+                    "官方语言：葡萄牙语",
+                    "英语在旅游区有限通用",
+                    "学习基本葡语很重要"
+                ],
+                usefulLinks: [
+                    "巴西旅游局：www.visitbrasil.com",
+                    "里约旅游：www.visit.rio",
+                    "巴西航空：www.latam.com"
+                ]
+            },
+            "Canada": {
+                basicInfo: [
+                    "首都：渥太华",
+                    "人口：约3800万",
+                    "时区：UTC-3.5至UTC-8",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：加拿大元(CAD)",
+                    "信用卡广泛使用",
+                    "小费文化普遍",
+                    "建议携带少量现金"
+                ],
+                languageInfo: [
+                    "官方语言：英语、法语",
+                    "魁北克省主要使用法语",
+                    "其他地区主要使用英语"
+                ],
+                usefulLinks: [
+                    "加拿大旅游局：www.canada.travel",
+                    "加拿大铁路：www.viarail.ca",
+                    "国家公园：www.pc.gc.ca"
+                ]
+            },
+            "Mexico": {
+                basicInfo: [
+                    "首都：墨西哥城",
+                    "人口：约1.3亿",
+                    "时区：UTC-6至UTC-8",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：墨西哥比索(MXN)",
+                    "旅游区接受美元",
+                    "信用卡在大城市通用",
+                    "建议携带现金"
+                ],
+                languageInfo: [
+                    "官方语言：西班牙语",
+                    "旅游区可使用英语",
+                    "基本西语很有帮助"
+                ],
+                usefulLinks: [
+                    "墨西哥旅游局：www.visitmexico.com",
+                    "墨西哥城地铁：www.metro.cdmx.gob.mx",
+                    "坎昆旅游：www.cancun.com"
+                ]
+            },
+            "North Korea": {
+                basicInfo: [
+                    "首都：平壤",
+                    "人口：约2500万",
+                    "时区：UTC+9",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：朝鲜元(KPW)",
+                    "建议携带欧元或人民币",
+                    "很少地方接受信用卡",
+                    "以现金交易为主"
+                ],
+                languageInfo: [
+                    "官方语言：朝鲜语",
+                    "导游提供翻译服务",
+                    "英语使用非常有限"
+                ],
+                usefulLinks: [
+                    "朝鲜旅游：www.koryotours.com",
+                    "朝鲜旅行社：www.pyongyangtravelguide.com",
+                    "注意：需要通过旅行社安排行程"
+                ]
+            },
+            "Italy": {
+                basicInfo: [
+                    "首都：罗马",
+                    "人口：约6000万",
+                    "时区：UTC+1",
+                    "驾驶方向：靠右行驶"
+                ],
+                currencyInfo: [
+                    "货币：欧元(EUR)",
+                    "信用卡广泛使用",
+                    "小商店偏好现金",
+                    "建议携带适量现金"
+                ],
+                languageInfo: [
+                    "官方语言：意大利语",
+                    "旅游区可使用英语",
+                    "学习基本意语问候"
+                ],
+                usefulLinks: [
+                    "意大利旅游局：www.italia.it",
+                    "意大利铁路：www.trenitalia.com",
+                    "罗马旅游：www.turismoroma.it"
+                ]
+            }
+        };
+
+        // 更新国家信息显示
+        function updateCountryDisplay(countryName) {
+            console.log("Updating display for:", countryName); // 调试日志
+            const countryDetails = document.getElementById('countryDetails');
+            const countryInfo = countryData[countryName];
+
+            if (countryInfo) {
+                // 更新国家名称
+                document.getElementById('selectedCountryName').textContent = countryName + " 实用信息";
+
+                // 更新基本信息
+                document.getElementById('basicInfo').innerHTML = `
+                    <ul>
+                        ${countryInfo.basicInfo.map(info => `<li>${info}</li>`).join('')}
+                    </ul>
+                `;
+
+                // 更新货币信息
+                document.getElementById('currencyInfo').innerHTML = `
+                    <ul>
+                        ${countryInfo.currencyInfo.map(info => `<li>${info}</li>`).join('')}
+                    </ul>
+                `;
+
+                // 更新语言信息
+                document.getElementById('languageInfo').innerHTML = `
+                    <ul>
+                        ${countryInfo.languageInfo.map(info => `<li>${info}</li>`).join('')}
+                    </ul>
+                `;
+
+                // 更新实用链接
+                document.getElementById('usefulLinks').innerHTML = `
+                    <ul>
+                        ${countryInfo.usefulLinks.map(link => `<li>${link}</li>`).join('')}
+                    </ul>
+                `;
+
+                // 显示详情模块
+                countryDetails.style.display = 'block';
+                
+                // 平滑滚动到详情模块
+                countryDetails.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.log("No data found for country:", countryName); // 调试日志
+            }
+        }
+
+        // 汇率数据 (2025年6月5日预设数据)
+        const exchangeRates = {
+            "CNY": {
+                "USD": 0.1389,
+                "EUR": 0.1285,
+                "GBP": 0.1099,
+                "JPY": 20.4835,
+                "NZD": 0.2234,
+                "CAD": 0.1875,
+                "AUD": 0.2089,
+                "MXN": 2.3897,
+                "BRL": 0.6789,
+                "EGP": 4.2876,
+                "KPW": 124.8765
+            },
+            "USD": {
+                "CNY": 7.1994,
+                "EUR": 0.9251,
+                "GBP": 0.7912,
+                "JPY": 147.4673,
+                "NZD": 1.6087,
+                "CAD": 1.3498,
+                "AUD": 1.5037,
+                "MXN": 17.2045,
+                "BRL": 4.8876,
+                "EGP": 30.8675,
+                "KPW": 899.0000
+            },
+            "EUR": {
+                "CNY": 7.7824,
+                "USD": 1.0810,
+                "GBP": 0.8553,
+                "JPY": 159.4054,
+                "NZD": 1.7390,
+                "CAD": 1.4590,
+                "AUD": 1.6255,
+                "MXN": 18.5975,
+                "BRL": 5.2837,
+                "EGP": 33.3675,
+                "KPW": 971.8900
+            }
+        };
+
+        // 国家货币代码映射
+        const countryCurrencies = {
+            "New Zealand": "NZD",
+            "United Kingdom": "GBP",
+            "France": "EUR",
+            "Germany": "EUR",
+            "Egypt": "EGP",
+            "Brazil": "BRL",
+            "Canada": "CAD",
+            "Mexico": "MXN",
+            "North Korea": "KPW",
+            "Italy": "EUR"
+        };
+
+        // 货币名称映射
+        const currencyNames = {
+            "CNY": "人民币",
+            "USD": "美元",
+            "EUR": "欧元",
+            "GBP": "英镑",
+            "JPY": "日元",
+            "NZD": "新西兰元",
+            "CAD": "加拿大元",
+            "AUD": "澳元",
+            "MXN": "墨西哥比索",
+            "BRL": "巴西雷亚尔",
+            "EGP": "埃及镑",
+            "KPW": "朝鲜元"
+        };
+
+        // 初始化汇率转换器
+        function initExchangeConverter() {
+            const modal = document.getElementById('exchangeRateModal');
+            const closeBtn = document.querySelector('.close-modal');
+            const fromCurrency = document.getElementById('fromCurrency');
+            const toCurrency = document.getElementById('toCurrency');
+            const amount = document.getElementById('amount');
+            const result = document.getElementById('result');
+
+            // 添加货币选项
+            Object.entries(currencyNames).forEach(([code, name]) => {
+                const option = new Option(`${name} (${code})`, code);
+                toCurrency.add(option);
+            });
+
+            // 关闭模态框
+            closeBtn.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // 计算汇率
+            function calculateExchange() {
+                const from = fromCurrency.value;
+                const to = toCurrency.value;
+                const inputAmount = parseFloat(amount.value);
+
+                if (from === to) {
+                    result.value = inputAmount;
+                    return;
+                }
+
+                let rate;
+                if (exchangeRates[from] && exchangeRates[from][to]) {
+                    rate = exchangeRates[from][to];
+                } else if (exchangeRates[to] && exchangeRates[to][from]) {
+                    rate = 1 / exchangeRates[to][from];
+                }
+
+                if (rate) {
+                    result.value = (inputAmount * rate).toFixed(4);
+                    document.getElementById('rateInfo').textContent = 
+                        `1 ${currencyNames[from]} = ${rate.toFixed(4)} ${currencyNames[to]}`;
+                }
+            }
+
+            // 添加事件监听器
+            [fromCurrency, toCurrency, amount].forEach(element => {
+                element.addEventListener('change', calculateExchange);
+                element.addEventListener('input', calculateExchange);
+            });
+        }
+
+        // 初始化页面时调用
+        document.addEventListener('DOMContentLoaded', function() {
+            initExchangeConverter();
+
+            // 为货币卡片添加点击事件
+            const currencyCard = document.querySelector('.info-card:nth-child(2)');
+            currencyCard.setAttribute('data-type', 'currency');
+            
+            currencyCard.addEventListener('click', function() {
+                const modal = document.getElementById('exchangeRateModal');
+                const currentCountry = document.getElementById('selectedCountryName')
+                    .textContent.replace(' 实用信息', '');
+                
+                // 设置目标货币
+                const targetCurrency = countryCurrencies[currentCountry];
+                if (targetCurrency) {
+                    document.getElementById('toCurrency').value = targetCurrency;
+                    document.getElementById('fromCurrency').value = 'CNY';
+                    document.getElementById('amount').value = 100;
+                    // 触发计算
+                    document.getElementById('amount').dispatchEvent(new Event('input'));
+                }
+                
+                modal.style.display = "block";
+            });
+
+            // 音乐播放器控制
+            const audio = document.getElementById('bgMusic');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const playPauseIcon = playPauseBtn.querySelector('i');
+            const volumeIcon = document.querySelector('.volume-control i');
+
+            // 更新音量图标的函数
+            function updateVolumeIcon(volume) {
+                volumeIcon.className = 'fas';
+                if (volume === 0) {
+                    volumeIcon.classList.add('fa-volume-mute');
+                } else if (volume < 0.5) {
+                    volumeIcon.classList.add('fa-volume-down');
+                } else {
+                    volumeIcon.classList.add('fa-volume-up');
+                }
+            }
+
+            // 更新播放/暂停图标
+            function updatePlayPauseIcon(isPlaying) {
+                if (isPlaying) {
+                    playPauseIcon.classList.remove('fa-play');
+                    playPauseIcon.classList.add('fa-pause');
+                } else {
+                    playPauseIcon.classList.remove('fa-pause');
+                    playPauseIcon.classList.add('fa-play');
+                }
+            }
+
+            // 保存音乐状态
+            function saveMusicState() {
+                localStorage.setItem('musicState', JSON.stringify({
+                    playing: !audio.paused,
+                    volume: audio.volume,
+                    currentTime: audio.currentTime,
+                    timestamp: Date.now()
+                }));
+            }
+
+            // 尝试播放音频
+            async function tryPlay() {
+                try {
+                    await audio.play();
+                    updatePlayPauseIcon(true);
+                    console.log('自动恢复播放成功');
+                } catch (error) {
+                    console.error('自动恢复播放失败:', error);
+                    updatePlayPauseIcon(false);
+                    // 添加一次性点击事件监听器来处理用户交互
+                    const resumePlayback = async () => {
+                        try {
+                            await audio.play();
+                            updatePlayPauseIcon(true);
+                            document.removeEventListener('click', resumePlayback);
+                        } catch (error) {
+                            console.error('播放失败:', error);
+                        }
+                    };
+                    document.addEventListener('click', resumePlayback);
+                }
+            }
+
+            // 从localStorage获取音乐状态并自动恢复
+            async function restoreMusicState() {
+                const musicState = JSON.parse(localStorage.getItem('musicState') || '{}');
+                
+                // 恢复音量设置
+                if (musicState.volume !== undefined) {
+                    audio.volume = musicState.volume;
+                    volumeSlider.value = musicState.volume * 100;
+                    updateVolumeIcon(musicState.volume);
+                }
+
+                // 恢复播放进度
+                if (musicState.currentTime !== undefined) {
+                    const timePassed = (Date.now() - (musicState.timestamp || 0)) / 1000;
+                    audio.currentTime = musicState.currentTime + (musicState.playing ? timePassed : 0);
+                }
+
+                // 如果之前是播放状态，尝试自动播放
+                if (musicState.playing) {
+                    await tryPlay();
+                }
+            }
+
+            // 定期保存播放进度
+            setInterval(saveMusicState, 1000);
+
+            // 页面加载完成后立即尝试恢复播放状态
+            restoreMusicState();
+
+            // 播放/暂停控制
+            playPauseBtn.addEventListener('click', async function() {
+                if (audio.paused) {
+                    try {
+                        await audio.play();
+                        updatePlayPauseIcon(true);
+                        saveMusicState();
+                    } catch (error) {
+                        console.error('播放失败:', error);
+                    }
+                } else {
+                    audio.pause();
+                    updatePlayPauseIcon(false);
+                    saveMusicState();
+                }
+            });
+
+            // 音量控制
+            volumeSlider.addEventListener('input', function() {
+                const volume = this.value / 100;
+                audio.volume = volume;
+                updateVolumeIcon(volume);
+                saveMusicState();
+            });
+
+            // 音量图标点击静音/取消静音
+            volumeIcon.addEventListener('click', function() {
+                const currentVolume = audio.volume;
+                const lastVolume = parseFloat(localStorage.getItem('lastVolume')) || 0.5;
+
+                if (currentVolume > 0) {
+                    localStorage.setItem('lastVolume', currentVolume.toString());
+                    audio.volume = 0;
+                    volumeSlider.value = 0;
+                    updateVolumeIcon(0);
+                } else {
+                    audio.volume = lastVolume;
+                    volumeSlider.value = lastVolume * 100;
+                    updateVolumeIcon(lastVolume);
+                }
+
+                saveMusicState();
+            });
+
+            // 监听音频结束事件
+            audio.addEventListener('ended', async function() {
+                // 循环播放
+                audio.currentTime = 0;
+                try {
+                    await audio.play();
+                    saveMusicState();
+                } catch (error) {
+                    console.error('循环播放失败:', error);
+                }
+            });
+
+            // 页面关闭前保存状态
+            window.addEventListener('beforeunload', saveMusicState);
+
+            // 监听页面可见性变化
+            document.addEventListener('visibilitychange', async function() {
+                if (document.visibilityState === 'visible') {
+                    // 页面变为可见时，检查并恢复播放状态
+                    const musicState = JSON.parse(localStorage.getItem('musicState') || '{}');
+                    if (musicState.playing && audio.paused) {
+                        await tryPlay();
+                    }
+                }
+            });
+
+            // 监听音频加载错误
+            audio.addEventListener('error', function(e) {
+                console.error('音频加载错误:', e);
+                updatePlayPauseIcon(false);
+            });
+
+            // 语言数据
+            const languageData = {
+                "Japan": {
+                    name: "日语",
+                    basicPhrases: [
+                        {
+                            original: "こんにちは",
+                            pinyin: "Konnichiwa",
+                            translation: "你好"
+                        },
+                        {
+                            original: "ありがとうございます",
+                            pinyin: "Arigatou gozaimasu",
+                            translation: "谢谢"
+                        },
+                        {
+                            original: "すみません",
+                            pinyin: "Sumimasen",
+                            translation: "对不起/打扰了"
+                        }
+                    ],
+                    emergencyPhrases: [
+                        {
+                            original: "助けてください",
+                            pinyin: "Tasukete kudasai",
+                            translation: "请帮助我"
+                        },
+                        {
+                            original: "警察を呼んでください",
+                            pinyin: "Keisatsu wo yonde kudasai",
+                            translation: "请叫警察"
+                        }
+                    ],
+                    vocabulary: [
+                        {
+                            original: "駅",
+                            pinyin: "Eki",
+                            translation: "车站"
+                        },
+                        {
+                            original: "お手洗い",
+                            pinyin: "Otearai",
+                            translation: "洗手间"
+                        }
+                    ],
+                    tips: [
+                        "日语有三种书写系统：平假名、片假名和汉字",
+                        "说话时注意使用敬语",
+                        "许多日语单词来源于英语，但发音已本地化"
+                    ]
+                },
+                "United States": {
+                    name: "英语",
+                    basicPhrases: [
+                        {
+                            original: "Hello",
+                            pinyin: "həˈləʊ",
+                            translation: "你好"
+                        },
+                        {
+                            original: "Thank you",
+                            pinyin: "θæŋk juː",
+                            translation: "谢谢"
+                        },
+                        {
+                            original: "Excuse me",
+                            pinyin: "ɪkˈskjuːz miː",
+                            translation: "对不起/打扰了"
+                        }
+                    ],
+                    emergencyPhrases: [
+                        {
+                            original: "Help!",
+                            pinyin: "help",
+                            translation: "救命！"
+                        },
+                        {
+                            original: "Call the police",
+                            pinyin: "kɔːl ðə pəˈliːs",
+                            translation: "叫警察"
+                        }
+                    ],
+                    vocabulary: [
+                        {
+                            original: "Restaurant",
+                            pinyin: "ˈrestrɒnt",
+                            translation: "餐厅"
+                        },
+                        {
+                            original: "Bathroom",
+                            pinyin: "ˈbɑːθruːm",
+                            translation: "洗手间"
+                        }
+                    ],
+                    tips: [
+                        "美式英语和英式英语在发音和用词上有所不同",
+                        "使用please和thank you来表示礼貌",
+                        "在正式场合使用Mr./Mrs./Ms.来称呼他人"
+                    ]
+                }
+                // 可以继续添加其他国家的语言数据
+            };
+
+            // 更新语言信息的函数
+            function updateLanguageInfo(countryName) {
+                const languageInfo = languageData[countryName];
+                if (!languageInfo) return;
+
+                // 更新基本会话
+                const basicPhrasesContainer = document.getElementById('basicPhrases');
+                basicPhrasesContainer.innerHTML = languageInfo.basicPhrases.map(phrase => `
+                    <div class="phrase-item">
+                        <span class="phrase-original">${phrase.original}</span>
+                        <span class="phrase-pinyin">${phrase.pinyin}</span>
+                        <span class="phrase-translation">${phrase.translation}</span>
+                    </div>
+                `).join('');
+
+                // 更新紧急用语
+                const emergencyPhrasesContainer = document.getElementById('emergencyPhrases');
+                emergencyPhrasesContainer.innerHTML = languageInfo.emergencyPhrases.map(phrase => `
+                    <div class="phrase-item">
+                        <span class="phrase-original">${phrase.original}</span>
+                        <span class="phrase-pinyin">${phrase.pinyin}</span>
+                        <span class="phrase-translation">${phrase.translation}</span>
+                    </div>
+                `).join('');
+
+                // 更新实用词汇
+                const vocabularyContainer = document.getElementById('usefulVocabulary');
+                vocabularyContainer.innerHTML = languageInfo.vocabulary.map(word => `
+                    <div class="phrase-item">
+                        <span class="phrase-original">${word.original}</span>
+                        <span class="phrase-pinyin">${word.pinyin}</span>
+                        <span class="phrase-translation">${word.translation}</span>
+                    </div>
+                `).join('');
+
+                // 更新语言小贴士
+                const tipsContainer = document.getElementById('languageTips');
+                tipsContainer.innerHTML = languageInfo.tips.map(tip => `
+                    <li>${tip}</li>
+                `).join('');
+            }
+
+            // 为语言卡片添加点击事件
+            const languageCard = document.querySelector('.info-card:nth-child(3)');
+            languageCard.setAttribute('data-type', 'language');
+            
+            languageCard.addEventListener('click', function() {
+                const modal = document.getElementById('languageModal');
+                const currentCountry = document.getElementById('selectedCountryName')
+                    .textContent.replace(' 实用信息', '');
+                
+                // 更新语言信息
+                updateLanguageInfo(currentCountry);
+                modal.style.display = "block";
+            });
+
+            // 为语言模态框添加关闭功能
+            const languageModal = document.getElementById('languageModal');
+            const languageCloseBtn = languageModal.querySelector('.close-modal');
+
+            languageCloseBtn.onclick = function() {
+                languageModal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == languageModal) {
+                    languageModal.style.display = "none";
+                }
+                if (event.target == exchangeRateModal) {
+                    exchangeRateModal.style.display = "none";
+                }
+            }
+        });
+
+        const countryLanguageDetails = {
+            "New Zealand": {
+                basicPhrases: [
+                    "Kia ora - Hello",
+                    "Tēnā koe - Formal hello to one person",
+                    "Ka kite anō - See you later"
+                ],
+                emergencyPhrases: [
+                    "Āwhina! - Help!",
+                    "Waea atu ki te waka tūroro - Call an ambulance",
+                    "He pirihimana - Police"
+                ],
+                usefulVocabulary: [
+                    "Kai - Food",
+                    "Whare - House/Building",
+                    "Wai - Water"
+                ],
+                culturalPhrases: [
+                    "Kia kaha - Stay strong/Keep going",
+                    "Manaakitanga - Hospitality/Kindness",
+                    "Whānau - Family/Community"
+                ]
+            },
+            "United Kingdom": {
+                basicPhrases: [
+                    "Cheers - Thank you/Goodbye",
+                    "Ta - Thanks",
+                    "Alright? - How are you?"
+                ],
+                emergencyPhrases: [
+                    "Help! - Help!",
+                    "Call an ambulance! - Call an ambulance!",
+                    "Police! - Police!"
+                ],
+                usefulVocabulary: [
+                    "Quid - Pound (money)",
+                    "Loo - Bathroom",
+                    "Tube - Underground train"
+                ],
+                culturalPhrases: [
+                    "Fancy a cuppa? - Would you like some tea?",
+                    "Lovely weather we're having! - Common small talk",
+                    "Mind the gap - Famous London Underground phrase"
+                ]
+            },
+            "France": {
+                basicPhrases: [
+                    "Bonjour - Hello",
+                    "Au revoir - Goodbye",
+                    "S'il vous plaît - Please"
+                ],
+                emergencyPhrases: [
+                    "Au secours! - Help!",
+                    "Appelez une ambulance! - Call an ambulance!",
+                    "Police! - Police!"
+                ],
+                usefulVocabulary: [
+                    "Le métro - Subway",
+                    "Le restaurant - Restaurant",
+                    "L'hôtel - Hotel"
+                ],
+                culturalPhrases: [
+                    "À votre santé! - Cheers/To your health!",
+                    "Je ne sais quoi - A certain something",
+                    "C'est la vie - That's life"
+                ]
+            },
+            "Germany": {
+                basicPhrases: [
+                    "Guten Tag - Hello",
+                    "Auf Wiedersehen - Goodbye",
+                    "Bitte - Please"
+                ],
+                emergencyPhrases: [
+                    "Hilfe! - Help!",
+                    "Rufen Sie einen Krankenwagen! - Call an ambulance!",
+                    "Polizei! - Police!"
+                ],
+                usefulVocabulary: [
+                    "Die Bahn - Train",
+                    "Das Restaurant - Restaurant",
+                    "Das Hotel - Hotel"
+                ],
+                culturalPhrases: [
+                    "Gemütlichkeit - Coziness/Comfort",
+                    "Prost! - Cheers!",
+                    "Mahlzeit! - Enjoy your meal!"
+                ]
+            },
+            "Egypt": {
+                basicPhrases: [
+                    "السلام عليكم - As-salaam-alaikum (Hello)",
+                    "مع السلامة - Ma'a as-salaama (Goodbye)",
+                    "من فضلك - Min fadlak (Please)"
+                ],
+                emergencyPhrases: [
+                    "النجدة! - An-najda! (Help!)",
+                    "اطلب الإسعاف! - Otlub el-is'aaf! (Call an ambulance!)",
+                    "الشرطة! - Ash-shurta! (Police!)"
+                ],
+                usefulVocabulary: [
+                    "المطعم - Al-mat'am (Restaurant)",
+                    "الفندق - Al-funduq (Hotel)",
+                    "المحطة - Al-mahatta (Station)"
+                ],
+                culturalPhrases: [
+                    "إن شاء الله - Insha'Allah (God willing)",
+                    "الحمد لله - Alhamdulillah (Thank God)",
+                    "ما شاء الله - Masha'Allah (Expression of joy/praise)"
+                ]
+            },
+            "Brazil": {
+                basicPhrases: [
+                    "Olá - Hello",
+                    "Tchau - Goodbye",
+                    "Por favor - Please"
+                ],
+                emergencyPhrases: [
+                    "Socorro! - Help!",
+                    "Chame uma ambulância! - Call an ambulance!",
+                    "Polícia! - Police!"
+                ],
+                usefulVocabulary: [
+                    "O restaurante - Restaurant",
+                    "O hotel - Hotel",
+                    "A estação - Station"
+                ],
+                culturalPhrases: [
+                    "Saudade - Longing/Missing",
+                    "Beleza! - Cool!/Great!",
+                    "Tudo bem? - Everything good?"
+                ]
+            },
+            "Canada": {
+                basicPhrases: [
+                    "Bonjour/Hello - Hello",
+                    "Au revoir/Goodbye - Goodbye",
+                    "S'il vous plaît/Please - Please"
+                ],
+                emergencyPhrases: [
+                    "À l'aide!/Help! - Help!",
+                    "Appelez une ambulance!/Call an ambulance! - Call an ambulance!",
+                    "Police!/Police! - Police!"
+                ],
+                usefulVocabulary: [
+                    "Le restaurant/Restaurant - Restaurant",
+                    "L'hôtel/Hotel - Hotel",
+                    "La gare/Station - Station"
+                ],
+                culturalPhrases: [
+                    "Eh? - Canadian question tag",
+                    "Double-double - Coffee with 2 cream & 2 sugar",
+                    "Sorry! - Common Canadian apology"
+                ]
+            },
+            "Mexico": {
+                basicPhrases: [
+                    "¡Hola! - Hello",
+                    "¡Adiós! - Goodbye",
+                    "Por favor - Please",
+                ],
+                emergencyPhrases: [
+                    "¡Ayuda! - Help!",
+                    "¡Llame una ambulancia! - Call an ambulance!",
+                    "¡Policía! - Police!",
+                ],
+                usefulVocabulary: [
+                    "El restaurante - Restaurant",
+                    "El hotel - Hotel",
+                    "La estación - Station",
+                ]
+            },
+            "North Korea": {
+                basicPhrases: [
+                    "안녕하세요 - Annyeong haseyo (Hello)",
+                    "안녕히 가세요 - Annyeonghi gaseyo (Goodbye)",
+                    "주세요 - Juseyo (Please)",
+                ],
+                emergencyPhrases: [
+                    "도와주세요! - Dowajuseyo! (Help!)",
+                    "구급차를 불러주세요! - Gugeupchareul bulleojuseyo! (Call an ambulance!)",
+                    "경찰! - Gyeongchal! (Police!)",
+                ],
+                usefulVocabulary: [
+                    "식당 - Sikdang (Restaurant)",
+                    "호텔 - Hotel (Hotel)",
+                    "역 - Yeok (Station)",
+                ]
+            },
+            "Italy": {
+                basicPhrases: [
+                    "Ciao - Hello/Goodbye",
+                    "Arrivederci - Goodbye",
+                    "Per favore - Please",
+                ],
+                emergencyPhrases: [
+                    "Aiuto! - Help!",
+                    "Chiama un'ambulanza! - Call an ambulance!",
+                    "Polizia! - Police!",
+                ],
+                usefulVocabulary: [
+                    "Il ristorante - Restaurant",
+                    "L'albergo - Hotel",
+                    "La stazione - Station",
+                ],
+                culturalPhrases: [
+                    "Dolce vita - Sweet life",
+                    "Mamma mia! - My goodness!",
+                    "In bocca al lupo! - Good luck! (literally: into the wolf's mouth)"
+                ]
+            }
+        };
+
+        // 更新语言模态框内容
+        function updateLanguageModal(countryName) {
+            const languageDetails = countryLanguageDetails[countryName];
+            if (!languageDetails) return;
+
+            document.getElementById('basicPhrases').innerHTML = `
+                <ul>
+                    ${languageDetails.basicPhrases.map(phrase => `<li>${phrase}</li>`).join('')}
+                </ul>
+            `;
+
+            document.getElementById('emergencyPhrases').innerHTML = `
+                <ul>
+                    ${languageDetails.emergencyPhrases.map(phrase => `<li>${phrase}</li>`).join('')}
+                </ul>
+            `;
+
+            document.getElementById('usefulVocabulary').innerHTML = `
+                <ul>
+                    ${languageDetails.usefulVocabulary.map(word => `<li>${word}</li>`).join('')}
+                </ul>
+            `;
+
+            document.getElementById('culturalPhrases').innerHTML = `
+                <ul>
+                    ${languageDetails.culturalPhrases.map(phrase => `<li>${phrase}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // 添加事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageCards = document.querySelectorAll('.info-card');
+            languageCards.forEach(card => {
+                if (card.querySelector('h3').textContent === '语言信息') {
+                    card.addEventListener('click', function() {
+                        const countryName = document.getElementById('selectedCountryName').textContent.replace(' 实用信息', '');
+                        updateLanguageModal(countryName);
+                        document.getElementById('languageModal').style.display = 'block';
+                    });
+                }
+            });
+
+            // 关闭模态框
+            const closeButtons = document.querySelectorAll('.close-modal');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                }
+            });
+        });
+
+        // 添加基本信息详情数据
+        const countryBasicDetails = {
+            "New Zealand": {
+                cityIntro: [
+                    "惠灵顿 - 风城首都，充满艺术气息",
+                    "奥克兰 - 最大城市，帆船之都",
+                    "皇后镇 - 冒险运动天堂"
+                ],
+                bestSeasons: [
+                    "12月-2月：夏季，最适合海滩活动",
+                    "3月-5月：秋季，观赏秋色",
+                    "6月-8月：冬季，适合滑雪",
+                    "9月-11月：春季，赏花踏青"
+                ],
+                specialExperiences: [
+                    "毛利文化体验",
+                    "观赏萤火虫洞",
+                    "徒步冰川探索",
+                    "观鲸之旅"
+                ]
+            },
+            "United Kingdom": {
+                cityIntro: [
+                    "伦敦 - 历史与现代交融的世界之都",
+                    "爱丁堡 - 浪漫的苏格兰首府",
+                    "曼彻斯特 - 工业革命发源地"
+                ],
+                bestSeasons: [
+                    "3月-5月：春季，花园盛开",
+                    "6月-8月：夏季，节日活动多",
+                    "9月-11月：秋季，景色宜人",
+                    "12月-2月：冬季，圣诞氛围浓"
+                ],
+                specialExperiences: [
+                    "下午茶文化",
+                    "城堡探索之旅",
+                    "英式酒吧体验",
+                    "莎士比亚故居游"
+                ]
+            },
+            "France": {
+                cityIntro: [
+                    "巴黎 - 浪漫之都",
+                    "里昂 - 美食之都",
+                    "波尔多 - 葡萄酒之都"
+                ],
+                bestSeasons: [
+                    "4月-6月：春季，鲜花盛开",
+                    "7月-8月：夏季，节日活动多",
+                    "9月-10月：秋季，葡萄收获季",
+                    "11月-3月：冬季，圣诞市集"
+                ],
+                specialExperiences: [
+                    "品酒体验",
+                    "法式烹饪课程",
+                    "薰衣草田观光",
+                    "卢浮宫艺术之旅"
+                ]
+            },
+            "Germany": {
+                cityIntro: [
+                    "柏林 - 历史文化之都",
+                    "慕尼黑 - 啤酒之都",
+                    "汉堡 - 港口城市"
+                ],
+                bestSeasons: [
+                    "5月-9月：夏季，户外活动多",
+                    "9月-10月：秋季，啤酒节",
+                    "11月-12月：冬季，圣诞市集",
+                    "3月-4月：春季，温和宜人"
+                ],
+                specialExperiences: [
+                    "啤酒节体验",
+                    "黑森林探索",
+                    "城堡之路游览",
+                    "柏林墙历史之旅"
+                ]
+            },
+            "Egypt": {
+                cityIntro: [
+                    "开罗 - 金字塔之都",
+                    "卢克索 - 古埃及文明中心",
+                    "亚历山大 - 地中海明珠"
+                ],
+                bestSeasons: [
+                    "10月-4月：最佳旅游季",
+                    "5月-9月：炎热季节",
+                    "12月-2月：温和舒适",
+                    "3月-4月：春季温和"
+                ],
+                specialExperiences: [
+                    "金字塔探索",
+                    "尼罗河游轮",
+                    "沙漠冒险",
+                    "古埃及文物探索"
+                ]
+            },
+            "Brazil": {
+                cityIntro: [
+                    "里约热内卢 - 狂欢之都",
+                    "圣保罗 - 经济中心",
+                    "萨尔瓦多 - 文化之都"
+                ],
+                bestSeasons: [
+                    "12月-3月：夏季，狂欢节",
+                    "4月-6月：秋季，气候宜人",
+                    "7月-9月：冬季，较为凉爽",
+                    "10月-11月：春季，雨季开始"
+                ],
+                specialExperiences: [
+                    "狂欢节体验",
+                    "亚马逊探险",
+                    "科帕卡巴纳海滩",
+                    "足球文化体验"
+                ]
+            },
+            "Canada": {
+                cityIntro: [
+                    "温哥华 - 最宜居城市",
+                    "多伦多 - 多元文化之都",
+                    "魁北克市 - 法式风情"
+                ],
+                bestSeasons: [
+                    "6月-8月：夏季，户外活动多",
+                    "9月-10月：秋季，枫叶季",
+                    "11月-3月：冬季，滑雪季",
+                    "4月-5月：春季，赏花季"
+                ],
+                specialExperiences: [
+                    "观赏极光",
+                    "枫叶之旅",
+                    "冰球体验",
+                    "国家公园探索"
+                ]
+            },
+            "Mexico": {
+                cityIntro: [
+                    "墨西哥城 - 古今交融",
+                    "坎昆 - 度假天堂",
+                    "瓜达拉哈拉 - 龙舌兰之乡"
+                ],
+                bestSeasons: [
+                    "12月-4月：旱季，最佳旅游时间",
+                    "5月-6月：春末夏初，较为炎热",
+                    "7月-8月：雨季，午后多雨",
+                    "9月-11月：秋季，气候宜人"
+                ],
+                specialExperiences: [
+                    "玛雅遗迹探索",
+                    "龙舌兰酒庄游",
+                    "墨西哥美食体验",
+                    "亡灵节庆典"
+                ]
+            },
+            "North Korea": {
+                cityIntro: [
+                    "平壤 - 朝鲜首都",
+                    "开城 - 历史古都",
+                    "元山 - 海滨城市"
+                ],
+                bestSeasons: [
+                    "4月-6月：春季，气候宜人",
+                    "7月-8月：夏季，较为炎热",
+                    "9月-10月：秋季，最佳观光季",
+                    "11月-3月：冬季，寒冷"
+                ],
+                specialExperiences: [
+                    "朝鲜传统文化体验",
+                    "参观历史遗迹",
+                    "民俗表演欣赏",
+                    "特色美食品尝"
+                ]
+            },
+            "Italy": {
+                cityIntro: [
+                    "罗马 - 永恒之都",
+                    "佛罗伦萨 - 文艺复兴之都",
+                    "威尼斯 - 水城"
+                ],
+                bestSeasons: [
+                    "4月-6月：春季，气候宜人",
+                    "7月-8月：夏季，热门旺季",
+                    "9月-10月：秋季，葡萄收获季",
+                    "11月-3月：冬季，艺术季"
+                ],
+                specialExperiences: [
+                    "意式美食烹饪课",
+                    "古罗马遗迹探索",
+                    "威尼斯贡多拉体验",
+                    "托斯卡纳葡萄酒之旅"
+                ]
+            }
+        };
+
+        // 更新基本信息模态框内容
+        function updateBasicInfoModal(countryName) {
+            const timezone = countryTimezones[countryName];
+            if (!timezone) return;
+
+            // 更新当地时钟标题
+            document.querySelector("#localClock h4").textContent = `${countryName}时间`;
+
+            // 初始更新时钟
+            updateClocks(timezone);
+
+            // 设置定时器每秒更新时钟
+            if (window.clockInterval) {
+                clearInterval(window.clockInterval);
+            }
+            window.clockInterval = setInterval(() => updateClocks(timezone), 1000);
+        }
+
+        // 修改事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            const infoCards = document.querySelectorAll('.info-card');
+            infoCards.forEach(card => {
+                const cardTitle = card.querySelector('h3').textContent;
+                card.addEventListener('click', function() {
+                    const countryName = document.getElementById('selectedCountryName').textContent.replace(' 实用信息', '');
+                    
+                    if (cardTitle === '语言信息') {
+                        updateLanguageModal(countryName);
+                        document.getElementById('languageModal').style.display = 'block';
+                    } else if (cardTitle === '基本信息') {
+                        updateBasicInfoModal(countryName);
+                        document.getElementById('basicInfoModal').style.display = 'block';
+                    }
+                });
+            });
+
+            // 关闭模态框
+            const closeButtons = document.querySelectorAll('.close-modal');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (window.clockInterval) {
+                        clearInterval(window.clockInterval);
+                    }
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+
+            // 点击模态框外部关闭时清除定时器
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    if (window.clockInterval) {
+                        clearInterval(window.clockInterval);
+                    }
+                    event.target.style.display = 'none';
+                }
+            });
+        });
+
+        // 时区映射
+        const countryTimezones = {
+            "New Zealand": "Pacific/Auckland",
+            "United Kingdom": "Europe/London",
+            "France": "Europe/Paris",
+            "Germany": "Europe/Berlin",
+            "Egypt": "Africa/Cairo",
+            "Brazil": "America/Sao_Paulo",
+            "Canada": "America/Toronto",
+            "Mexico": "America/Mexico_City",
+            "North Korea": "Asia/Pyongyang",
+            "Italy": "Europe/Rome"
+        };
+
+        // 更新时钟函数
+        function updateClocks(timezone) {
+            // 获取北京时间
+            const beijingDate = new Date().toLocaleString("zh-CN", {
+                timeZone: "Asia/Shanghai"
+            });
+            const beijingTime = new Date(beijingDate);
+
+            // 获取当地时间
+            const localDate = new Date().toLocaleString("en-US", {
+                timeZone: timezone
+            });
+            const localTime = new Date(localDate);
+
+            // 更新北京时钟
+            updateAnalogClock(beijingTime, "beijingClock");
+            document.querySelector("#beijingClock .time").textContent = beijingTime.toLocaleTimeString("zh-CN", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+            document.querySelector("#beijingClock .date").textContent = beijingTime.toLocaleDateString("zh-CN", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+
+            // 更新当地时钟
+            updateAnalogClock(localTime, "localClock");
+            document.querySelector("#localClock .time").textContent = localTime.toLocaleTimeString("zh-CN", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+            document.querySelector("#localClock .date").textContent = localTime.toLocaleDateString("zh-CN", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+        }
+
+        // 更新模拟时钟指针
+        function updateAnalogClock(time, clockId) {
+            const hours = time.getHours() % 12;
+            const minutes = time.getMinutes();
+            const seconds = time.getSeconds();
+            
+            const hourDeg = (hours * 30) + (minutes * 0.5); // 每小时30度，每分钟增加0.5度
+            const minuteDeg = minutes * 6; // 每分钟6度
+            const secondDeg = seconds * 6; // 每秒6度
+
+            const clock = document.querySelector(`#${clockId} .analog-clock`);
+            const hourHand = clock.querySelector('.hour-hand');
+            const minuteHand = clock.querySelector('.minute-hand');
+            const secondHand = clock.querySelector('.second-hand');
+
+            hourHand.style.transform = `rotate(${hourDeg}deg)`;
+            minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+            secondHand.style.transform = `rotate(${secondDeg}deg)`;
         }
     </script>
 </body>
