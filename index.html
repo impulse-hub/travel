@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QKH的旅行幻想</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- 引入 amCharts 资源 -->
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
@@ -1018,16 +1020,172 @@
                 font-size: 2.2rem;
             }
         }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 0;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex: 1;
+        }
+
+        /* 音乐播放器样式 */
+        .player-container {
+            background-color: var(--accent-color);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 250px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .song-title {
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 0.1rem;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.25rem;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            transform: scale(1.1);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .volume-control i {
+            font-size: 1rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .volume-control i:hover {
+            transform: scale(1.1);
+        }
+
+        #volumeSlider {
+            width: 60px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: var(--primary-color);
+            border-radius: 2px;
+            outline: none;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        #volumeSlider:hover {
+            opacity: 1;
+        }
+
+        #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #volumeSlider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: var(--text-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #volumeSlider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        #volumeSlider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 1200px) {
+            .music-player {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
         <nav class="container">
+            <div class="nav-content">
+                <div class="nav-left">
             <a href="index.html" class="logo">
                 <span class="logo-icon">🌍</span>
-                <span>QKH的旅行幻想时刻</span>
+                        <span>QKH的旅行幻想</span>
             </a>
-            <div style="display: flex; align-items: center; gap: 20px;">
+                    <div class="music-player">
+                        <div class="player-container">
+                            <div class="player-info">
+                                <span class="song-title">Civilization VI OST - China Theme</span>
+                            </div>
+                            <audio id="bgMusic" src="China.mp3" preload="auto"></audio>
+                            <div class="player-controls">
+                                <button id="playPauseBtn" class="control-btn">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <div class="volume-control">
+                                    <i class="fas fa-volume-up"></i>
+                                    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <div class="nav-links">
                     <a href="index.html" class="active">主页</a>
                     <a href="country_details.html?about=true">国家详情</a>
@@ -1857,6 +2015,176 @@
             if (e.target === this) {
                 closeMessageModal();
             }
+        });
+
+        // 音乐播放器控制
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('bgMusic');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const playPauseIcon = playPauseBtn.querySelector('i');
+            const volumeIcon = document.querySelector('.volume-control i');
+
+            // 更新音量图标的函数
+            function updateVolumeIcon(volume) {
+                volumeIcon.className = 'fas';
+                if (volume === 0) {
+                    volumeIcon.classList.add('fa-volume-mute');
+                } else if (volume < 0.5) {
+                    volumeIcon.classList.add('fa-volume-down');
+                } else {
+                    volumeIcon.classList.add('fa-volume-up');
+                }
+            }
+
+            // 更新播放/暂停图标
+            function updatePlayPauseIcon(isPlaying) {
+                if (isPlaying) {
+                    playPauseIcon.classList.remove('fa-play');
+                    playPauseIcon.classList.add('fa-pause');
+                } else {
+                    playPauseIcon.classList.remove('fa-pause');
+                    playPauseIcon.classList.add('fa-play');
+                }
+            }
+
+            // 保存音乐状态
+            function saveMusicState() {
+                localStorage.setItem('musicState', JSON.stringify({
+                    playing: !audio.paused,
+                    volume: audio.volume,
+                    currentTime: audio.currentTime,
+                    timestamp: Date.now()
+                }));
+            }
+
+            // 尝试播放音频
+            async function tryPlay() {
+                try {
+                    await audio.play();
+                    updatePlayPauseIcon(true);
+                    console.log('自动恢复播放成功');
+                } catch (error) {
+                    console.error('自动恢复播放失败:', error);
+                    updatePlayPauseIcon(false);
+                    // 添加一次性点击事件监听器来处理用户交互
+                    const resumePlayback = async () => {
+                        try {
+                            await audio.play();
+                            updatePlayPauseIcon(true);
+                            document.removeEventListener('click', resumePlayback);
+                        } catch (error) {
+                            console.error('播放失败:', error);
+                        }
+                    };
+                    document.addEventListener('click', resumePlayback);
+                }
+            }
+
+            // 从localStorage获取音乐状态并自动恢复
+            async function restoreMusicState() {
+                const musicState = JSON.parse(localStorage.getItem('musicState') || '{}');
+                
+                // 恢复音量设置
+                if (musicState.volume !== undefined) {
+                    audio.volume = musicState.volume;
+                    volumeSlider.value = musicState.volume * 100;
+                    updateVolumeIcon(musicState.volume);
+                }
+
+                // 恢复播放进度
+                if (musicState.currentTime !== undefined) {
+                    const timePassed = (Date.now() - (musicState.timestamp || 0)) / 1000;
+                    audio.currentTime = musicState.currentTime + (musicState.playing ? timePassed : 0);
+                }
+
+                // 如果之前是播放状态，尝试自动播放
+                if (musicState.playing) {
+                    await tryPlay();
+                }
+            }
+
+            // 定期保存播放进度
+            setInterval(saveMusicState, 1000);
+
+            // 页面加载完成后立即尝试恢复播放状态
+            restoreMusicState();
+
+            // 播放/暂停控制
+            playPauseBtn.addEventListener('click', async function() {
+                if (audio.paused) {
+                    try {
+                        await audio.play();
+                        updatePlayPauseIcon(true);
+                        saveMusicState();
+                    } catch (error) {
+                        console.error('播放失败:', error);
+                    }
+                } else {
+                    audio.pause();
+                    updatePlayPauseIcon(false);
+                    saveMusicState();
+                }
+            });
+
+            // 音量控制
+            volumeSlider.addEventListener('input', function() {
+                const volume = this.value / 100;
+                audio.volume = volume;
+                updateVolumeIcon(volume);
+                saveMusicState();
+            });
+
+            // 音量图标点击静音/取消静音
+            volumeIcon.addEventListener('click', function() {
+                const currentVolume = audio.volume;
+                const lastVolume = parseFloat(localStorage.getItem('lastVolume')) || 0.5;
+
+                if (currentVolume > 0) {
+                    localStorage.setItem('lastVolume', currentVolume.toString());
+                    audio.volume = 0;
+                    volumeSlider.value = 0;
+                    updateVolumeIcon(0);
+                } else {
+                    audio.volume = lastVolume;
+                    volumeSlider.value = lastVolume * 100;
+                    updateVolumeIcon(lastVolume);
+                }
+
+                saveMusicState();
+            });
+
+            // 监听音频结束事件
+            audio.addEventListener('ended', async function() {
+                // 循环播放
+                audio.currentTime = 0;
+                try {
+                    await audio.play();
+                    saveMusicState();
+                } catch (error) {
+                    console.error('循环播放失败:', error);
+                }
+            });
+
+            // 页面关闭前保存状态
+            window.addEventListener('beforeunload', saveMusicState);
+
+            // 监听页面可见性变化
+            document.addEventListener('visibilitychange', async function() {
+                if (document.visibilityState === 'visible') {
+                    // 页面变为可见时，检查并恢复播放状态
+                    const musicState = JSON.parse(localStorage.getItem('musicState') || '{}');
+                    if (musicState.playing && audio.paused) {
+                        await tryPlay();
+                    }
+                }
+            });
+
+            // 监听音频加载错误
+            audio.addEventListener('error', function(e) {
+                console.error('音频加载错误:', e);
+                updatePlayPauseIcon(false);
+            });
         });
     </script>
 </body>
