@@ -16,6 +16,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+    <!-- 引入Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #3b82f6;
@@ -1390,13 +1392,129 @@
             max-width: 400px;
         }
 
-        
+        /* 顶部导航栏样式 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 280px; /* 与侧边栏宽度相同 */
+            right: 0;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            background: var(--nav-background);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+            background: var(--card-background);
+        }
+
+        /* 音乐播放器样式 */
+        .music-player {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: var(--card-background);
+            border-radius: 50px;
+            border: 1px solid var(--card-border);
+            margin-left: 1rem;
+        }
+
+        .player-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .control-btn:hover {
+            color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-control i {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .volume-control i:hover {
+            color: var(--primary-color);
+        }
+
+        #volumeSlider {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #volumeSlider::-webkit-slider-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        @media (max-width: 1200px) {
+            .music-player {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
+
+
     <div class="container">
         <!-- 侧边栏 -->
-        <aside class="sidebar">
+        <div class="sidebar">
             <div class="sidebar-header">
                 <h2>国家列表</h2>
                 <p>点击查看详情</p>
@@ -1404,7 +1522,7 @@
             <ul class="country-list" id="countryList">
                 <!-- 国家列表将通过 JavaScript 动态生成 -->
             </ul>
-        </aside>
+        </div>
 
         <!-- 主内容区域 -->
         <main class="main-content">
@@ -1417,8 +1535,6 @@
             <div id="countryContent">
                 <!-- 国家内容将通过 JavaScript 动态加载 -->
             </div>
-            
-            
         </main>
     </div>
 
@@ -2449,9 +2565,6 @@
 
             // 初始化浮动地球仪
             initFloatingGlobe();
-
-            // 初始化搜索功能
-            initializeSearch();
         });
 
         // 添加旅行建议相关函数
@@ -3150,69 +3263,7 @@
         let searchTimeout;
         let currentSuggestions = [];
 
-        function initializeSearch() {
-            const searchInput = document.getElementById('searchInput');
-            const searchSuggestions = document.getElementById('searchSuggestions');
-            const filterButtons = document.querySelectorAll('.filter-button');
-
-            // 输入事件处理
-            searchInput.addEventListener('input', function(e) {
-                clearTimeout(searchTimeout);
-                const searchTerm = e.target.value.trim().toLowerCase();
-                
-                if (searchTerm.length >= 1) {
-                    searchTimeout = setTimeout(() => {
-                        generateSearchSuggestions(searchTerm);
-                    }, 200);
-                } else {
-                    searchSuggestions.classList.remove('active');
-                }
-            });
-
-            // 失去焦点时隐藏建议
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.search-container')) {
-                    searchSuggestions.classList.remove('active');
-                }
-            });
-
-            // 过滤器点击事件
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    activeFilter = this.dataset.filter;
-                    const searchTerm = searchInput.value.trim().toLowerCase();
-                    if (searchTerm) {
-                        generateSearchSuggestions(searchTerm);
-                    }
-                });
-            });
-
-            // 键盘导航
-            searchInput.addEventListener('keydown', function(e) {
-                const suggestions = document.querySelectorAll('.suggestion-item');
-                const currentIndex = Array.from(suggestions).findIndex(item => item.classList.contains('active'));
-
-                switch(e.key) {
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        navigateSuggestions(currentIndex, 1, suggestions);
-                        break;
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        navigateSuggestions(currentIndex, -1, suggestions);
-                        break;
-                    case 'Enter':
-                        const activeSuggestion = document.querySelector('.suggestion-item.active');
-                        if (activeSuggestion) {
-                            e.preventDefault();
-                            handleSuggestionSelect(activeSuggestion.dataset.postId);
-                        }
-                        break;
-                }
-            });
-        }
+        
 
         function navigateSuggestions(currentIndex, direction, suggestions) {
             if (!suggestions.length) return;
@@ -3417,14 +3468,12 @@
             return text.replace(regex, '<span class="highlight">$1</span>');
         }
 
-        // 在页面加载时初始化搜索功能
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... existing code ...
-            initializeSearch();
-        });
+
+
+
     </script>
 
-    <!-- 移除 html2pdf 库 -->
+    <!-- html2pdf 库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- 添加图片预览模态框 -->
