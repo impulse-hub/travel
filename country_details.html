@@ -1685,7 +1685,7 @@
                 li.className = 'country-item';
                 
                 const statusClass = country.status === 'visited' ? 'status-visited' : 'status-to-visit';
-                const statusText = country.status === 'visited' ? '已去过' : '计划前往';
+                const statusText = country.status === 'visited' ? '站主已去过' : '站主未来想去';
                 
                 li.innerHTML = `
                     <a href="?id=${code}&status=${country.status}" class="country-link">
@@ -1705,7 +1705,7 @@
 
             const content = document.getElementById('countryContent');
             const statusClass = country.status === 'visited' ? 'badge-visited' : 'badge-to-visit';
-            const statusText = country.status === 'visited' ? '已去过' : '计划前往';
+            const statusText = country.status === 'visited' ? '站主已去过' : '站主未来想去';
 
             content.innerHTML = `
                 <div class="top-section">
