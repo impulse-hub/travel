@@ -3418,6 +3418,20 @@
                 paddingRight: 0
             }));
 
+            // Enable rotation
+            chart.set("rotationX", 0);
+            chart.set("rotationY", 0);
+            chart.set("rotationZ", 0);
+
+            let rotationAnimation;
+
+            // Stop rotation animation on drag start
+            chart.events.on("dragged", function() {
+                if (rotationAnimation) {
+                    rotationAnimation.stop();
+                }
+            });
+
             // Create polygon series
             const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
                 geoJSON: am5geodata_worldLow,
@@ -3435,7 +3449,7 @@
             });
 
             // Create animation
-            chart.animate({
+            rotationAnimation = chart.animate({
                 key: "rotationX",
                 from: 0,
                 to: 360,
@@ -3451,12 +3465,18 @@
             ]);
 
             // Add click event to navigate to main globe
-            document.querySelector('.floating-globe').addEventListener('click', function() {
-                window.location.href = 'index.html#globe';
+            document.querySelector('.floating-globe').addEventListener('click', function(e) {
+                // Only navigate if not dragging
+                if (!chart.get("dragging")) {
+                    window.location.href = 'index.html#globe';
+                }
             });
 
             // Cleanup on component unmount
             return () => {
+                if (rotationAnimation) {
+                    rotationAnimation.stop();
+                }
                 root.dispose();
             };
         }
